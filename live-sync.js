@@ -13,7 +13,7 @@ const [{initializeApp},{getAuth,signInAnonymously},{getDatabase,ref,set,onValue,
  import('https://www.gstatic.com/firebasejs/11.10.0/firebase-database.js')]);
 const app=initializeApp(firebaseConfig);const auth=getAuth(app);const database=getDatabase(app);
 const credential=await signInAnonymously(auth);const uid=credential.user.uid;
-const KEY='darths_live_room_v3';
+const KEY='darths_live_room_v4';
 let room=localStorage.getItem(KEY);
 let pending=Promise.resolve();
 let revision=0;
