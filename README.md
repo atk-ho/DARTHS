@@ -1,4 +1,4 @@
-# DARTHS v3 — GitHub Pages + Firebase
+# DARTHS v1.0.0 — GitHub Pages + Firebase
 
 ## Upload to GitHub
 Extract this ZIP and upload its **contents** to `atk-ho/DARTHS` (repository root), including the `icons` folder. Enable GitHub Pages from `main` / `(root)`.
