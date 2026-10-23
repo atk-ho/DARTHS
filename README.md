@@ -1,4 +1,4 @@
-# DARTHS v1.0.0 — GitHub Pages + Firebase
+# DARTHS v3 — GitHub Pages + Firebase
 
 ## Upload to GitHub
 Extract this ZIP and upload its **contents** to `atk-ho/DARTHS` (repository root), including the `icons` folder. Enable GitHub Pages from `main` / `(root)`.
@@ -20,3 +20,13 @@ Both devices need internet. The laptop scoreboard is read-only. Sharing links us
 - For live sharing to work, the owner must keep their phone online. Sharing is not available until Firebase is configured.
 - A saved room is reused on the same phone until the site data is cleared. For privacy, share links only with intended spectators.
 - The live sync integration has not been tested against your actual Firebase project; verify rules and full match flow before relying on it in a tournament.
+
+
+## Live scoreboard sync fix
+
+- Use **Share** on the phone to create the viewing link. Open it on the laptop.
+- The phone now offers **↻ Refresh** to resend the complete current match.
+- Dart changes are written to Firebase in order, including the third dart and completed turn.
+- Both devices require an internet connection. Firebase Anonymous Authentication and Realtime Database rules must be enabled.
+- The supplied `firebase-config.js` contains placeholders: add your own Firebase web app configuration before deploying.
+

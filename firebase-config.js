@@ -1,10 +1,9 @@
-// Firebase client configuration for DARTHS (public web configuration).
+// Paste the values from Firebase Console > Project settings > Your apps > Web app.
+// This is public web-app configuration, NOT a service account key.
 export const firebaseConfig = {
-  apiKey: "AIzaSyBwPaSxzd_MVV54J_g-FudKLn4q55rBVSo",
-  authDomain: "darths-8b146.firebaseapp.com",
-  databaseURL: "https://darths-8b146-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "darths-8b146",
-  storageBucket: "darths-8b146.firebasestorage.app",
-  messagingSenderId: "613008499494",
-  appId: "1:613008499494:web:2a841f33587acb552097e7"
+  apiKey: "PASTE_API_KEY",
+  authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://PASTE_DATABASE_URL",
+  projectId: "PASTE_PROJECT_ID",
+  appId: "PASTE_APP_ID"
 };

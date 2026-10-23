@@ -1,4 +1,4 @@
-const CACHE = 'darths-pwa-v4-20261023-live';
+const CACHE = 'darths-pwa-v5-20261023-sync-fix';
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './live-sync.js', './firebase-config.js', './spectator.css'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
