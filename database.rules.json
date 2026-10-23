@@ -1,0 +1,11 @@
+{
+  "rules": {
+    "liveMatches": {
+      "$room": {
+        ".read": "auth != null && $room.matches(/^[a-f0-9]{36}$/)",
+        ".write": "auth != null && $room.matches(/^[a-f0-9]{36}$/) && ((!data.exists() && newData.child('owner').val() === auth.uid) || (data.child('owner').val() === auth.uid && (!newData.exists() || newData.child('owner').val() === auth.uid)))",
+        ".validate": "newData.hasChildren(['owner','updatedAt','game']) && newData.child('owner').isString() && newData.child('updatedAt').isNumber() && newData.child('game').hasChildren(['participants','points','current'])"
+      }
+    }
+  }
+}
