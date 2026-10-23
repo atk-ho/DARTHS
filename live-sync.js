@@ -50,6 +50,15 @@ if (!configured) {
         if (generation !== session || target !== room || !currentGame) return;
         const nextIV = iv + (incrementIV ? 1 : 0);
         const gameData = copy(currentGame);
+        // Firebase-only fourth entry. The live game itself is never modified.
+        // All players receive the same IV value; entries 0–2 remain actual darts.
+        if (Array.isArray(gameData.participants)) {
+          for (const player of gameData.participants) {
+            const last = Array.isArray(player.last) ? player.last.slice(0, 3) : [];
+            last[3] = { label: 'IV', score: nextIV };
+            player.last = last;
+          }
+        }
         try { const saved = JSON.parse(localStorage.getItem('darts_scoreboard_v1') || '{}'); gameData.ivVisible = saved.settings?.showIV !== false; } catch (_) { gameData.ivVisible = true; }
         const record = { owner: uid, updatedAt: Date.now(), iv: nextIV, game: gameData };
         await set(roomRef(target), record);
@@ -145,7 +154,7 @@ if (!configured) {
         status.textContent = '● LIVE';
         const g = record.game;
         document.body.classList.toggle('many-players', g.participants.length >= 4);
-        content.innerHTML = `<section class="watch-overview"><h1>${g.points} Darts</h1><div class="overview-grid"><div><small>START SCORE</small><strong>${g.points}</strong></div><div><small>CHECK-IN</small><strong>${escapeHTML(g.checkin)}</strong></div><div><small>CHECKOUT</small><strong>${escapeHTML(g.checkout)}</strong></div></div><p>Set ${g.setNumber} · Leg ${g.legNumber} · Round ${g.round} · ${g.format==='best'?'Best of':'First to'} ${g.legs} legs</p></section><section class="watch-rows">${g.participants.map((p,i)=>{const shown=i===g.current&&g.turn.length?g.turn:(p.last||[]);const bust=!!p.lastBust&&i!==g.current;const avg=p.stats.darts?(p.stats.scored/p.stats.darts*3).toFixed(2):'0.00';return `<div class="watch-row ${i===g.current?'active':''} ${bust?'bust':''}"><div class="watch-left"><strong>${p.remaining}</strong><span>${escapeHTML(p.label)}</span></div><div class="watch-middle"><div class="watch-darts">${[0,1,2].map(j=>`<div>${shown[j]?escapeHTML(shown[j].label):''}</div>`).join('')}</div><b>${bust?0:shown.reduce((a,d)=>a+(d.score||0),0)}</b></div><div class="watch-right"><small>Sets: ${p.sets} · Legs: ${p.legs}</small><span>🎯 ${p.stats.darts}</span><span>⊘ ${avg}</span></div></div>`}).join('')}</section><footer>${escapeHTML(g.participants[g.current]?.label||'Player')}'s turn</footer>`;
+        content.innerHTML = `<section class="watch-overview"><h1>${g.points} Darts</h1><div class="overview-grid"><div><small>START SCORE</small><strong>${g.points}</strong></div><div><small>CHECK-IN</small><strong>${escapeHTML(g.checkin)}</strong></div><div><small>CHECKOUT</small><strong>${escapeHTML(g.checkout)}</strong></div></div><p>Set ${g.setNumber} · Leg ${g.legNumber} · Round ${g.round} · ${g.format==='best'?'Best of':'First to'} ${g.legs} legs</p></section><section class="watch-rows">${g.participants.map((p,i)=>{const shown=i===g.current&&g.turn.length?g.turn:(p.last||[]);const bust=!!p.lastBust&&i!==g.current;const avg=p.stats.darts?(p.stats.scored/p.stats.darts*3).toFixed(2):'0.00';return `<div class="watch-row ${i===g.current?'active':''} ${bust?'bust':''}"><div class="watch-left"><strong>${p.remaining}</strong><span>${escapeHTML(p.label)}</span></div><div class="watch-middle"><div class="watch-darts">${[0,1,2].map(j=>`<div>${shown[j]?escapeHTML(shown[j].label):''}</div>`).join('')}</div><b>${bust?0:shown.slice(0,3).reduce((a,d)=>a+(d.score||0),0)}</b></div><div class="watch-right"><small>Sets: ${p.sets} · Legs: ${p.legs}</small><span>🎯 ${p.stats.darts}</span><span>⊘ ${avg}</span></div></div>`}).join('')}</section><footer>${escapeHTML(g.participants[g.current]?.label||'Player')}'s turn</footer>`;
       };
       // Real-time listener plus a periodic server re-read for recovery if the stream stalls.
       onValue(roomRef(id), snap => renderRecord(snap.val()), error => {
