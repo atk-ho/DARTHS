@@ -3,7 +3,7 @@
 export const firebaseConfig = {
   apiKey: "PASTE_API_KEY",
   authDomain: "PASTE_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://PASTE_DATABASE_URL",
-  projectId: "PASTE_PROJECT_ID",
+  databaseURL: "https://darths-8b146-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "darths-8b146",
   appId: "PASTE_APP_ID"
 };
