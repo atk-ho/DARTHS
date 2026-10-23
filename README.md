@@ -37,3 +37,11 @@ Both devices need internet. The laptop scoreboard is read-only. Sharing links us
 The application includes `terms.html`, `privacy.html`, and `copyright.html`, linked from Settings and the home-screen footer. Review and adapt the drafts to your actual data processing and chosen code license before publication.
 
 **Firebase config:** Keep your existing working `firebase-config.js` when deploying this package; the bundled file is a placeholder.
+
+## Copyright and Licensing
+
+Copyright © 2026 Arthur Reguindin Jr. All rights reserved.
+
+DARTHS is publicly available for use through its official website. The source code is not offered under an open-source license. Permission is required for redistribution or creation of derivative works, except where permitted by applicable law or third-party licenses.
+
+Third-party components remain subject to their respective licenses.
