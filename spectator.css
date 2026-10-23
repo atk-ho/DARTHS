@@ -2,3 +2,18 @@ body:has(.watch-shell){margin:0;padding:0!important;background:#0e1625;color:#f8
 /* Hidden IV counter, directly to the left of LIVE status. */
 
 /* IV counter: visible by default, controlled by phone Settings via Firebase. */
+
+
+/* Spectator-only centered layout (approved preview). */
+body:has(.watch-shell) .watch-overview{text-align:center;padding:clamp(14px,2.3vh,28px)}
+body:has(.watch-shell) .watch-overview h1{text-align:center;margin:0 0 clamp(12px,1.8vh,22px);font-size:clamp(24px,3.5vh,43px)}
+body:has(.watch-shell) .watch-overview .overview-grid{width:min(100%,1200px);max-width:1200px;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:clamp(7px,1vw,18px)}
+body:has(.watch-shell) .watch-overview .overview-grid>div{padding:clamp(10px,1.6vh,19px) 8px;min-width:0}
+body:has(.watch-shell) .watch-overview p{text-align:center;margin:clamp(10px,1.7vh,20px) auto 0}
+body:has(.watch-shell) .watch-row{grid-template-columns:minmax(0,1fr) minmax(0,1.5fr) minmax(0,1fr);column-gap:clamp(8px,1.7vw,28px);padding-inline:clamp(10px,2vw,32px)}
+body:has(.watch-shell) .watch-left,body:has(.watch-shell) .watch-middle,body:has(.watch-shell) .watch-right{width:100%;justify-self:center;text-align:center}
+body:has(.watch-shell) .watch-middle{max-width:550px}
+body:has(.watch-shell) .watch-darts{width:100%;gap:clamp(4px,.6vw,12px)}
+body:has(.watch-shell) .watch-darts>div{border-radius:4px}
+body:has(.watch-shell) .watch-row.active{border-color:#22c55e}
+@media(max-width:600px){body:has(.watch-shell) .watch-overview .overview-grid{gap:5px}body:has(.watch-shell) .watch-row{grid-template-columns:minmax(0,1fr) minmax(0,1.45fr) minmax(0,1fr);gap:5px;padding-inline:8px}body:has(.watch-shell) .watch-right small{font-size:10px}body:has(.watch-shell) .watch-right span{font-size:12px}}
