@@ -4,7 +4,11 @@
       "$room": {
         ".read": "auth != null && $room.matches(/^[a-f0-9]{36}$/)",
         ".write": "auth != null && $room.matches(/^[a-f0-9]{36}$/) && ((!data.exists() && newData.child('owner').val() === auth.uid) || (data.child('owner').val() === auth.uid && (!newData.exists() || newData.child('owner').val() === auth.uid)))",
-        ".validate": "newData.hasChildren(['owner','updatedAt','game']) && newData.child('owner').isString() && newData.child('updatedAt').isNumber() && newData.child('game').hasChildren(['participants','points','current'])"
+        ".validate": "newData.hasChildren(['owner', 'updatedAt', 'game']) && newData.child('owner').val() === auth.uid && newData.child('updatedAt').isNumber() && newData.child('game').hasChildren(['participants', 'points', 'current'])",
+        "owner": { ".validate": "newData.isString() && newData.val() === auth.uid" },
+        "updatedAt": { ".validate": "newData.isNumber()" },
+        "game": { ".validate": "newData.hasChildren(['participants', 'points', 'current'])" },
+        "$other": { ".validate": false }
       }
     }
   }
