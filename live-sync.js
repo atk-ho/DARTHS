@@ -110,6 +110,20 @@ if (!configured) {
         const g = record.game;
         document.body.classList.toggle('many-players', g.participants.length >= 4);
         content.innerHTML = `<section class="watch-overview"><h1>${g.points} Darts</h1><div class="overview-grid"><div><small>START SCORE</small><strong>${g.points}</strong></div><div><small>CHECK-IN</small><strong>${escapeHTML(g.checkin)}</strong></div><div><small>CHECKOUT</small><strong>${escapeHTML(g.checkout)}</strong></div></div><p>Set ${g.setNumber} · Leg ${g.legNumber} · Round ${g.round} · ${g.format==='best'?'Best of':'First to'} ${g.legs} legs</p></section><section class="watch-rows">${g.participants.map((p,i)=>{const shown=i===g.current&&Array.isArray(g.turn)&&g.turn.length?g.turn:(p.last||[]).slice(0,3);const bust=!!p.lastBust&&i!==g.current;const avg=p.stats.darts?(p.stats.scored/p.stats.darts*3).toFixed(2):'0.00';return `<div class="watch-row ${i===g.current?'active':''} ${bust?'bust':''}"><div class="watch-left"><strong>${p.remaining}</strong><span>${escapeHTML(p.label)}</span></div><div class="watch-middle"><div class="watch-darts">${[0,1,2].map(j=>`<div>${shown[j]?escapeHTML(shown[j].label):''}</div>`).join('')}</div><b>${bust?0:shown.reduce((a,d)=>a+(d.score||0),0)}</b></div><div class="watch-right"><small>Sets: ${p.sets} · Legs: ${p.legs}</small><span>🎯 ${p.stats.darts}</span><span>⊘ ${avg}</span></div></div>`}).join('')}</section><footer>${escapeHTML(g.participants[g.current]?.label||'Player')}'s turn</footer>`;
+        // A spectator is read-only: host drives winner/results phase via game.resultView.
+        if (g.finished) {
+          status.textContent = '● LIVE · MATCH FINISHED';
+          const winner = g.participants[g.winnerIndex] || g.participants[0];
+          const winnerName = escapeHTML(winner?.label || 'Winner');
+          const resultsMode = g.resultView === 'results';
+          const sorted = [...g.participants].sort((a,b) => (b.sets||0)-(a.sets||0) || (b.legs||0)-(a.legs||0) || (a.remaining||0)-(b.remaining||0));
+          const totalDarts = g.participants.reduce((n,p)=>n+(p.stats?.darts||0),0);
+          const resultRows = sorted.map((p,i) => `<tr><td>${i+1}</td><td>${p===winner?'👑 ':''}${escapeHTML(p.label)}</td><td>${p.remaining}</td><td>${p.stats?.darts||0}</td><td>${p.stats?.darts?(3*(p.stats.scored||0)/p.stats.darts).toFixed(2):'0.00'}</td><td>${p.stats?.high||0}</td><td>${p.stats?.checkoutHits||0} / ${p.stats?.checkoutAttempts||0}</td><td>${p===winner?'WINNER':'—'}</td></tr>`).join('');
+          const overlay = resultsMode
+            ? `<div class="watch-modal" role="dialog" aria-label="Match results"><div class="watch-modal-panel watch-results-panel"><h1>🏆 Game Results</h1><p>${g.points} Darts · Set ${g.setNumber} · Leg ${g.legNumber}</p><div class="watch-table-scroll"><table><thead><tr><th>#</th><th>Player</th><th>Final</th><th>Darts</th><th>Average</th><th>High</th><th>Checks</th><th>Status</th></tr></thead><tbody>${resultRows}</tbody></table></div><div class="watch-summary"><div>Total Darts<strong>${totalDarts}</strong></div><div>Rounds<strong>${g.round||1}</strong></div><div>Winner<strong>${winnerName}</strong></div></div><p class="watch-viewonly">Live results · Spectator view only</p></div></div>`
+            : `<div class="watch-modal" role="dialog" aria-label="Winner announcement"><div class="watch-modal-panel watch-winner-panel"><div class="watch-trophy">🏆</div><h1>CONGRATULATIONS!</h1><h2>${winnerName} is the Winner!</h2><p>${g.points} Darts · Set ${g.setNumber} · Leg ${g.legNumber}</p><p>Winner by Checkout!</p></div></div>`;
+          content.insertAdjacentHTML('beforeend', `<div class="watch-winner-banner">🏆 ${winnerName} is the Winner! 🏆</div>${overlay}`);
+        }
         lastSignature = signature;
       }
       onValue(roomRef(id), snapshot => renderRecord(snapshot.val()), error => {
