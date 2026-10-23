@@ -98,6 +98,18 @@ if (!configured) {
       const status = document.getElementById('connection');
       if (!validRoom(id)) throw new Error('Invalid sharing code');
       let lastSignature = '';
+
+function leadClass(players,key,i){
+ const values=players.map(p=>Math.max(0,Number(p[key])||0)),v=values[i];
+ if(!v)return 'neutral';
+ const top=Math.max(...values);
+ if(v===top)return values.filter(n=>n===top).length>1?'second':'leader';
+ const distinct=[...new Set(values.filter(n=>n>0))].sort((a,b)=>b-a);
+ return v===distinct[1]?'second':'neutral';
+}
+function indicator(g,p,i){
+ return `<div class="win-indicators">${['sets','legs'].map((key,k)=>`<div class="win-group"><small>${k?'L':'S'}</small><span class="win-box ${leadClass(g.participants,key,i)}">${Number(p[key])||0}</span></div>`).join('')}</div>`;
+}
       function renderRecord(record) {
         if (!record?.game) {
           status.textContent = 'WAITING';
@@ -109,7 +121,7 @@ if (!configured) {
         if (signature === lastSignature) return;
         const g = record.game;
         document.body.classList.toggle('many-players', g.participants.length >= 4);
-        content.innerHTML = `<section class="watch-overview"><h1>${g.points} Darts</h1><div class="overview-grid"><div><small>START SCORE</small><strong>${g.points}</strong></div><div><small>CHECK-IN</small><strong>${escapeHTML(g.checkin)}</strong></div><div><small>CHECKOUT</small><strong>${escapeHTML(g.checkout)}</strong></div></div><p>Set ${g.setNumber} · Leg ${g.legNumber} · Round ${g.round} · ${g.format==='best'?'Best of':'First to'} ${g.legs} legs</p></section><section class="watch-rows">${g.participants.map((p,i)=>{const shown=i===g.current&&Array.isArray(g.turn)&&g.turn.length?g.turn:(p.last||[]).slice(0,3);const bust=!!p.lastBust&&i!==g.current;const avg=p.stats.darts?(p.stats.scored/p.stats.darts*3).toFixed(2):'0.00';return `<div class="watch-row ${i===g.current?'active':''} ${bust?'bust':''}"><div class="watch-left"><strong>${p.remaining}</strong><span>${escapeHTML(p.label)}</span></div><div class="watch-middle"><div class="watch-darts">${[0,1,2].map(j=>`<div>${shown[j]?escapeHTML(shown[j].label):''}</div>`).join('')}</div><b>${bust?0:shown.reduce((a,d)=>a+(d.score||0),0)}</b></div><div class="watch-right"><small>Sets: ${p.sets} · Legs: ${p.legs}</small><span>🎯 ${p.stats.darts}</span><span>⊘ ${avg}</span></div></div>`}).join('')}</section><footer>${escapeHTML(g.participants[g.current]?.label||'Player')}'s turn</footer>`;
+        content.innerHTML = `<section class="watch-overview"><h1>${g.points} Darts</h1><div class="overview-grid"><div><small>START SCORE</small><strong>${g.points}</strong></div><div><small>CHECK-IN</small><strong>${escapeHTML(g.checkin)}</strong></div><div><small>CHECKOUT</small><strong>${escapeHTML(g.checkout)}</strong></div></div><p>Set ${g.setNumber} · Leg ${g.legNumber} · Round ${g.round} · ${g.format==='best'?'Best of':'First to'} ${g.legs} legs</p></section><section class="watch-rows">${g.participants.map((p,i)=>{const shown=i===g.current&&Array.isArray(g.turn)&&g.turn.length?g.turn:(p.last||[]).slice(0,3);const bust=!!p.lastBust&&i!==g.current;const avg=p.stats.darts?(p.stats.scored/p.stats.darts*3).toFixed(2):'0.00';return `<div class="watch-row ${i===g.current?'active':''} ${bust?'bust':''}"><div class="watch-left"><strong>${p.remaining}</strong><span>${escapeHTML(p.label)}</span></div>${indicator(g,p,i)}<div class="watch-middle"><div class="watch-darts">${[0,1,2].map(j=>`<div>${shown[j]?escapeHTML(shown[j].label):''}</div>`).join('')}</div><b>${bust?0:shown.reduce((a,d)=>a+(d.score||0),0)}</b></div><div class="watch-right"><span>🎯 ${p.stats.darts}</span><span>⊘ ${avg}</span></div></div>`}).join('')}</section><footer>${escapeHTML(g.participants[g.current]?.label||'Player')}'s turn</footer>`;
         // A spectator is read-only: host drives winner/results phase via game.resultView.
         if (g.finished) {
           status.textContent = '● LIVE · MATCH FINISHED';
