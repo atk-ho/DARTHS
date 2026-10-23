@@ -1,49 +1,34 @@
-# DARTHS v1.0.0 — GitHub Pages + Firebase
+# DARTHS — Darts Scoreboard PWA (v1.0.3)
 
-## Upload to GitHub
-Extract this ZIP and upload its **contents** to `atk-ho/DARTHS` (repository root), including the `icons` folder. Enable GitHub Pages from `main` / `(root)`.
+Mobile scoring with Firebase Realtime Database live laptop spectator view, offline-capable PWA, player statistics, sound, and legal pages.
 
-## Configure Firebase (required for sharing)
-1. Create a Firebase project and register a Web app.
-2. Create a **Realtime Database** in **locked mode**. Copy its URL.
-3. Enable **Authentication > Sign-in method > Anonymous**.
-4. In Firebase Realtime Database > Rules, replace the rules with the contents of `database.rules.json` and publish.
-5. Edit `firebase-config.js`: paste your Firebase Web app config **including `databaseURL`**.
-6. Commit the updated file to GitHub. Wait for GitHub Pages to deploy.
-7. Open DARTHS on your phone, start a game, tap **Share**, and open the copied link on your laptop. Press F11.
+## Install / update
 
-Both devices need internet. The laptop scoreboard is read-only. Sharing links use random 36-character IDs; anyone with the link can view the match. The Firebase rules require anonymous sign-in and restrict writes to the original room owner. Firebase project quota and security rules still apply.
+1. Back up your current GitHub repository and phone match data (Settings → Export data).
+2. Upload **all files** from this ZIP to the **root** of `atk-ho/DARTHS`, keeping the `icons/` folder structure. Do not put the enclosing ZIP folder in the repo.
+3. Firebase Console → Realtime Database → Rules: paste `database.rules.json` and Publish.
+4. Firebase Authentication → Sign-in method → Anonymous: Enabled.
+5. Wait for GitHub Pages deployment. Reload the phone and laptop pages; if installed as a PWA, fully close and reopen it to receive the updated service worker.
+6. Start a new match, Share, and open the new link on laptop. The initial match is published immediately; an `iv` refresh follows after 3 seconds. A completed turn schedules a refresh after 2.5 seconds. Manual refresh increments `iv`.
 
-## Notes
-- The original scorekeeper remains on the phone; the laptop opens the separate `?watch=...` view.
-- Match state and history remain saved in phone localStorage.
-- For live sharing to work, the owner must keep their phone online. Sharing is not available until Firebase is configured.
-- A saved room is reused on the same phone until the site data is cleared. For privacy, share links only with intended spectators.
-- The live sync integration has not been tested against your actual Firebase project; verify rules and full match flow before relying on it in a tournament.
+## Firebase deletion
 
+**No Firebase deletion is required.** The new `darths_live_room_v5_iv` localStorage key creates a fresh room. Old rooms can be deleted from Firebase → Realtime Database → Data → `liveMatches` *only if you no longer need their spectator links*. Do not delete the project, database, or Authentication users.
 
-## Live scoreboard sync fix
+## Important notes
 
-- Use **Share** on the phone to create the viewing link. Open it on the laptop.
-- The phone now offers **↻ Refresh** to resend the complete current match.
-- Dart changes are written to Firebase in order, including the third dart and completed turn.
-- Both devices require an internet connection. Firebase Anonymous Authentication and Realtime Database rules must be enabled.
-- The supplied `firebase-config.js` contains placeholders: add your own Firebase web app configuration before deploying.
+- `iv` is stored in Firebase but never displayed on the scoreboard.
+- A spectator listener uses Firebase realtime events and a 5-second server read fallback. This can increase Firebase database reads; use within your Firebase quota.
+- The `● LIVE` indicator means the spectator has received match data, not merely that the page loaded.
+- `firebase-config.js` contains the Firebase web app configuration you supplied. Check its values against your own Firebase Console.
+- `database.rules.json` is for pasting into Firebase Rules; GitHub Pages does not apply it automatically.
+- Your player data and local match history remain in browser localStorage. Do not clear site data unless backed up.
 
+## License
 
+DARTHS original source code is available under the [MIT License](LICENSE). Third-party dependencies and assets retain their own licenses.
 
-## Legal pages
+Copyright © 2026 Arthur Reguindin Jr.
 
-The application includes `terms.html`, `privacy.html`, and `copyright.html`, linked from Settings and the home-screen footer. Review and adapt the drafts to your actual data processing and chosen code license before publication.
-
-**Firebase config:** Keep your existing working `firebase-config.js` when deploying this package; the bundled file is a placeholder.
-
-MIT License
-
-Copyright (c) 2026 Arthur Reguindin Jr.
-
-Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+### Hidden spectator IV indicator
+A tiny `iv` counter sits immediately left of the LIVE status on the laptop scoreboard. It updates from Firebase but has `opacity: 0`, so it is invisible.
