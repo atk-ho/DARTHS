@@ -7,7 +7,7 @@ const escapeHTML = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&l
 const configured = Object.values(firebaseConfig).every(x => x && !String(x).includes('PASTE_'));
 
 if (viewing) {
-  document.body.innerHTML = `<main class="watch-shell"><header class="watch-header"><div class="watch-brand"><img src="./icons/icon-192.png" alt=""> DARTHS</div><div class="watch-connection"><span id="ivCounter" class="iv-counter" aria-hidden="true">iv=0</span><span id="connection">Connecting…</span></div></header><div id="watchContent" class="watch-content">Loading live scores…</div></main>`;
+  document.body.innerHTML = `<main class="watch-shell"><header class="watch-header"><div class="watch-brand"><img src="./icons/icon-192.png" alt=""> DARTHS</div><div class="watch-connection"><span id="ivCounter" class="iv-counter" aria-label="IV refresh counter">IV = 0</span><span id="connection">Connecting…</span></div></header><div id="watchContent" class="watch-content">Loading live scores…</div></main>`;
   document.title = 'DARTHS · Live Scoreboard';
 }
 
@@ -49,7 +49,9 @@ if (!configured) {
       writeChain = writeChain.catch(() => {}).then(async () => {
         if (generation !== session || target !== room || !currentGame) return;
         const nextIV = iv + (incrementIV ? 1 : 0);
-        const record = { owner: uid, updatedAt: Date.now(), iv: nextIV, game: copy(currentGame) };
+        const gameData = copy(currentGame);
+        try { const saved = JSON.parse(localStorage.getItem('darts_scoreboard_v1') || '{}'); gameData.ivVisible = saved.settings?.showIV !== false; } catch (_) { gameData.ivVisible = true; }
+        const record = { owner: uid, updatedAt: Date.now(), iv: nextIV, game: gameData };
         await set(roomRef(target), record);
         iv = nextIV;
         lastError = null;
@@ -135,7 +137,7 @@ if (!configured) {
           content.textContent = 'No active shared match found.';
           return;
         }
-        if (ivCounter) ivCounter.textContent = 'iv=' + (Number.isFinite(record.iv) ? record.iv : 0);
+        if (ivCounter) { ivCounter.textContent = 'IV = ' + (Number.isFinite(record.iv) ? record.iv : 0); ivCounter.style.opacity = record.game?.ivVisible === false ? '0' : '1'; }
         const signature = JSON.stringify(record);
         if (signature === lastSignature) return;
         lastSignature = signature;
