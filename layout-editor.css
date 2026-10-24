@@ -159,3 +159,14 @@ body.game-active{padding-bottom:0}body.game-active #toast{bottom:15px}
 .dle-stage.dle-host .dle-scorecard .dle-part[data-part="total"] .turn-total{font-size:var(--dle-size,16px)!important}
 .dle-stage.dle-host .dle-scorecard .dle-part[data-part="stats"] .mini-stat{font-size:var(--dle-size,12px)!important}
 @media(max-width:480px){.dle-stage.dle-host .dle-scorecard.score-card{padding:8px 5px}.dle-stage.dle-host .dart-slot{min-height:36px}}
+
+/* Individual scorecard and box selection */
+.dle-stage .dle-scorecard{margin-left:auto;margin-right:auto;max-width:none;transition:outline .12s}
+.dle-stage .dle-container-selected{outline:2px dashed #4bc6ff;outline-offset:3px}
+.dle-stage .dle-scorecard .dle-part{cursor:pointer}
+.dle-stage .dle-scorecard .dle-part[data-part^="dart"]{flex:1;min-width:0}
+.dle-stage .dle-scorecard .dle-part[data-part^="dart"] .dart-slot{width:100%;height:100%}
+.dle-stage .dle-scorecard .dle-part[data-part="setBox"],.dle-stage .dle-scorecard .dle-part[data-part="legBox"]{display:inline-flex}
+.dle-stage .dle-scorecard .dle-part[data-part="statDarts"],.dle-stage .dle-scorecard .dle-part[data-part="statAvg"]{display:block}
+.dle-stage .dle-scorecard .dart-slots{display:flex}
+.dle-stage .dle-scorecard .dle-part.dle-selected{outline:2px dashed #4bc6ff!important;outline-offset:2px}
