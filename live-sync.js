@@ -133,7 +133,7 @@ function indicator(g,p,i){
               const e=layout.elements[key];if(!e)continue;
               const size=Math.max(9,Math.min(100,Number(e.size)||16));
               const color=/^#[0-9a-fA-F]{6}$/.test(e.color)?e.color:'#ffffff';
-              st.textContent+=selectors.map(sel=>`${sel}{font-size:${size}px!important;color:${color}!important;${e.visible===false?'display:none!important;':''}}`).join('');
+              st.textContent+=selectors.map(sel=>`${sel}{font-size:${size}px!important;color:${color}!important;${e.visible===false?'visibility:hidden!important;':''}transform:translate(${Math.max(-12,Math.min(12,Number(e.x)||0))}px,${Math.max(-12,Math.min(12,Number(e.y)||0))}px)!important}`).join('');
             }
           }
           if(['default','dark','blue'].includes(layout.theme)){
