@@ -6,3 +6,40 @@
 
 /* DARTHS approved layout editor */
 .dle-overlay{position:fixed;inset:0;z-index:9999;overflow:auto;background:#071525;color:#fff;padding:12px;font-family:Arial,sans-serif}.dle-shell{max-width:1050px;margin:auto;background:#0e253d;border:1px solid #31516f;border-radius:15px;padding:16px}.dle-top{display:flex;align-items:center;gap:12px}.dle-top h2{flex:1;margin:0}.dle-top span{font-size:12px;color:#a7c1da}.dle-overlay button,.dle-overlay select,.dle-overlay input{font:inherit}.dle-overlay button{background:#1a456d;color:#fff;border:1px solid #52779a;border-radius:9px;padding:9px 12px;cursor:pointer}.dle-overlay button:hover{background:#246197}.dle-controls{display:flex;flex-wrap:wrap;gap:12px;margin:16px 0}.dle-controls label{display:flex;flex:1;min-width:130px;flex-direction:column;gap:5px;font-size:13px}.dle-controls input,.dle-controls select{background:#071525;color:white;border:1px solid #52779a;border-radius:7px;padding:9px;max-width:100%}.dle-controls .dle-check{flex-direction:row;align-items:center}.dle-note{color:#a7c1da;font-size:12px}.dle-stagewrap{overflow:auto;border:1px solid #385d7d;border-radius:10px;padding:10px;background:#081729}.dle-stage{width:100%;min-width:290px;max-width:100%;margin:auto}.dle-stage.mobile{max-width:380px}.dle-stage.tablet{max-width:760px}.dle-stage.desktop{max-width:100%}.dle-gamehead{padding:10px;font-weight:bold}.dle-scorecard{display:grid;grid-template-columns:minmax(45px,1fr) auto minmax(86px,1.4fr) auto;gap:clamp(4px,1vw,12px);align-items:center;min-height:90px;margin:8px 0;padding:8px;border:2px solid #315779;border-radius:8px;background:#06192c;overflow:hidden}.dle-scorecard.active{border-color:#ffe000}.dle-left,.dle-middle{display:flex;flex-direction:column;align-items:center;min-width:0}.dle-left strong{font-size:1em}.dle-wins{display:flex;gap:4px}.dle-wins span{display:flex;flex-direction:column;align-items:center;font-size:10px}.dle-wins b{border:1px solid #168bff;padding:4px}.dle-wins span:first-child b{border-color:#ffe000}.dle-darts{display:flex;gap:2px}.dle-darts span{background:#102b47;padding:5px 4px;border-radius:3px;font-size:12px}.dle-stats{display:flex;flex-direction:column;gap:7px;white-space:nowrap;font-size:11px}.dle-part{min-width:0;position:relative;max-width:100%;cursor:pointer;white-space:nowrap}.dle-selected{outline:1px dashed #75b8ff;outline-offset:2px}.dle-previewonly .dle-part{outline:0;cursor:default}.dle-arrows{display:flex;align-items:center;flex-direction:column;gap:4px;margin:14px}.dle-arrows>div{display:flex;gap:12px;align-items:center}.dle-arrows span{min-width:125px;text-align:center;font-size:12px}.dle-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.dle-actions button{flex:1}.dle-actions .dle-primary{background:#0875ee}.dle-edit-only[hidden]{display:none!important}@media(max-width:480px){.dle-shell{padding:10px}.dle-scorecard{gap:3px;padding:6px 4px}.dle-darts span{padding:3px}.dle-wins{gap:2px}.dle-stats{font-size:10px}}
+
+/* DARTHS responsive layout editor UI. Additive styles; original scoreboard proportions remain. */
+.dle-overlay{box-sizing:border-box;padding:env(safe-area-inset-top,10px) 10px env(safe-area-inset-bottom,16px);font-family:system-ui,-apple-system,sans-serif}
+.dle-overlay *{box-sizing:border-box}
+.dle-shell{max-width:860px;margin:auto;padding:12px;background:#081b2f;border:1px solid #214767;border-radius:16px}
+.dle-top{display:flex;align-items:center;gap:10px;margin-bottom:14px}
+.dle-top #dleClose{flex:0 0 auto;background:transparent;border:0;font-size:25px;padding:5px 10px}
+.dle-title{flex:1;min-width:0}.dle-title h2{font-size:20px;margin:0}.dle-title small{font-size:11px;color:#a8c7df}
+#dleDirty{font-size:10px;white-space:nowrap}
+.dle-layout-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.dle-layout-tabs button{min-width:0;padding:12px 6px;border:1px solid #2b5478;border-radius:12px;background:#102e49;font-size:12px;font-weight:700}
+.dle-layout-tabs button.active{border-color:#278aff;background:#064eaa;box-shadow:inset 0 0 0 1px #4fa6ff}
+.dle-card{border:1px solid #284c6b;background:#0c263e;border-radius:12px;padding:13px;margin:10px 0}
+.dle-card h3{margin:0 0 6px;font-size:15px}.dle-card small,.dle-card .dle-note{color:#a9c4dc;font-size:11px}
+.dle-card-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.dle-device-label{display:flex;align-items:center;gap:6px;font-size:11px}.dle-device-label select{max-width:115px}
+.dle-overlay select,.dle-overlay input[type=number]{background:#06182a;color:#fff;border:1px solid #3b6487;border-radius:8px;padding:10px;min-width:0}
+.dle-card>select{width:100%;margin:8px 0}.dle-preview-button{margin-top:9px;width:100%}
+.dle-stagewrap{padding:7px;overflow-x:auto}.dle-stage.mobile{max-width:380px;min-width:0}
+.dle-show-card summary{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer;list-style:none}
+.dle-show-card summary::-webkit-details-marker{display:none}.dle-show-card summary span{display:grid;gap:3px}.dle-show-card summary small{display:block}
+#dleVisibilityCount{color:#cce5ff;background:#13477d;padding:5px 9px;border-radius:20px;font-size:11px;white-space:nowrap}
+.dle-visibility-list{display:grid;grid-template-columns:1fr;gap:5px;margin-top:12px}
+.dle-toggle-row{display:flex;align-items:center;gap:10px;background:#102f4c;border:1px solid #1c4263;border-radius:9px;padding:10px;font-size:13px;cursor:pointer;min-height:46px}
+.dle-element-symbol{width:24px;text-align:center;color:#93d1ff;font-size:18px}.dle-toggle-row>span:nth-child(2){flex:1}
+.dle-toggle-row input{position:absolute;opacity:0;width:1px;height:1px}.dle-switch{position:relative;width:42px;height:24px;background:#38516a;border-radius:20px;flex-shrink:0;transition:background .15s}
+.dle-switch:after{content:'';position:absolute;top:3px;left:3px;width:18px;height:18px;border-radius:50%;background:white;transition:transform .15s}
+.dle-toggle-row input:checked+.dle-switch{background:#087bfa}.dle-toggle-row input:checked+.dle-switch:after{transform:translateX(18px)}
+.dle-toggle-row input:focus-visible+.dle-switch{outline:2px solid #fff;outline-offset:3px}
+.dle-selected-visible{display:flex;align-items:center;gap:8px;font-size:12px;margin-top:8px}
+.dle-step{display:flex;align-items:center;justify-content:space-between;gap:12px}.dle-step label{font-size:11px;display:grid;gap:4px}.dle-step input{width:85px}#dleXY{font-size:12px;color:#bed9ee}
+.dle-arrows{margin:8px 0;gap:5px}.dle-arrows button{min-width:48px;min-height:43px;font-size:21px}.dle-arrows>div{gap:10px}.dle-arrows>div span{font-size:12px;color:#a8c6e1}
+.dle-size-controls{display:flex;align-items:end;gap:8px}.dle-size-controls button{font-size:22px;min-width:48px;height:44px}.dle-size-controls label{flex:1;display:grid;gap:4px;font-size:11px}.dle-size-controls input{width:100%;text-align:center}
+.dle-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:8px;margin:12px 0}.dle-actions button{min-height:48px;font-size:12px;font-weight:700}.dle-primary{background:#0079f9!important;border-color:#278eff!important}
+.dle-part{touch-action:manipulation}
+@media(min-width:650px){.dle-shell{padding:18px}.dle-visibility-list{grid-template-columns:repeat(2,minmax(0,1fr))}.dle-card{padding:16px}.dle-layout-tabs button{font-size:14px}.dle-stage.mobile{max-width:400px}}
+@media(max-width:390px){.dle-shell{padding:8px}.dle-card{padding:9px}.dle-overlay{padding-left:5px;padding-right:5px}.dle-scorecard{gap:3px;padding:5px;min-height:76px}.dle-darts span{padding:3px 2px;font-size:10px}.dle-stats{font-size:9px}.dle-wins b{padding:2px}}
