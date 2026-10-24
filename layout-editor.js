@@ -16,5 +16,5 @@ function update(){const r=$('darthsLayoutV2');if(!r)return;r.querySelectorAll('[
 // Existing entrypoint still calls the new editor.
 window.DARTHS_OPEN_LAYOUT_EDITOR=openEditor;
 const old=$('settings')?.querySelector('button.primary');if(old&&old.textContent.includes('Spectator Layout'))old.onclick=openEditor;
-makeSettings();nav();
+nav();
 })();
