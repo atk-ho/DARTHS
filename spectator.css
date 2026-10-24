@@ -96,3 +96,7 @@ body:has(.watch-shell) .watch-rows:has(> .watch-row:nth-child(5)) .watch-overvie
 .watch-row .win-box.leader{border-color:#ffdc24;box-shadow:0 0 7px #ffdc2466}
 .watch-row .win-box.second{border-color:#149bff;box-shadow:0 0 6px #149bff55}
 @media(max-width:700px){.watch-row{grid-template-columns:minmax(50px,.8fr) auto minmax(85px,1.5fr) minmax(45px,.6fr)!important;gap:4px!important}.watch-row .win-indicators{gap:4px}.watch-row .win-box{width:20px;height:20px;font-size:11px}}
+
+.watch-row .win-box{width:clamp(23px,2.5vw,34px);height:clamp(23px,2.5vw,34px)}.watch-row{column-gap:clamp(8px,1.5vw,24px)!important}
+
+.watch-tournament{margin:12px 16px;padding:12px;background:#102943;border:1px solid #285680;border-radius:9px;color:#dbeafe}.watch-tournament summary{cursor:pointer;font-weight:bold}.watch-tournament div{padding:6px 0;border-bottom:1px solid #244360}
