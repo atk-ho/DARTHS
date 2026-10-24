@@ -47,5 +47,17 @@ root.addEventListener('click',e=>{const b=e.target.closest('[data-screen],[data-
 // Keep the existing sound toggle and new Settings controls synchronized.
 cfg.voice=db.settings.voice!==false;cfg.effects=db.settings.effects!==false;Object.assign(db.settings,{confirmWin:cfg.confirmWin,hostAudio:cfg.hostAudio,voiceName:cfg.voiceName,voiceVolume:cfg.voiceVolume,speechRate:cfg.speechRate,effectsVolume:cfg.effectsVolume,turnOrder:cfg.turnOrder,announce:cfg.announce,bustVoice:cfg.bustVoice,victoryVoice:cfg.victoryVoice});
 const oldSwitch=typeof switchTab==='function'?switchTab:null;if(oldSwitch){/* Main navigation continues to use its original handler. */}
+// Returning to Settings from another main tab always starts at the Settings menu.
+// Observe the actual tab visibility so this also works with programmatic navigation.
+let wasSettingsHidden=root.classList.contains('hidden');
+const settingsTabObserver=new MutationObserver(()=>{
+  const nowHidden=root.classList.contains('hidden');
+  if(nowHidden&&!wasSettingsHidden&&view!=='menu'){
+    view='menu';
+    render();
+  }
+  wasSettingsHidden=nowHidden;
+});
+settingsTabObserver.observe(root,{attributes:true,attributeFilter:['class']});
 apply();applyDefaults();maybeSnapshot();if(cfg.wake)wake();render();
 })();
