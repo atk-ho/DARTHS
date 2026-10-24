@@ -38,6 +38,12 @@ function install(){
  const categories=[['⚙','General','App preferences','general'],['🎯','Game Settings','Match defaults and rules','game'],['🔊','Sound & Voice','Voice and sound effects','sound'],['▣','Layout Editor','Host and Spectator layouts','layout'],['▤','Data & Backup','Export and manage saved data','backup'],['◈','Appearance','Display preferences','appearance'],['ⓘ','About & Legal','App information and policies','about']];
  home.innerHTML='<h2>⚙ Settings</h2><div class="dle-settings-list">'+categories.map(([icon,title,desc,id])=>`<button type="button" class="dle-settings-link" data-settings-page="${id}"><span class="dle-settings-icon">${icon}</span><span><strong>${title}</strong><small>${desc}</small></span><span aria-hidden="true">›</span></button>`).join('')+'</div><div id="dleSettingsDetail" class="hidden"></div>';
  settings.prepend(home);
+ // Keep the Settings landing page visible even if legacy page CSS hides panels.
+ // Only the menu is forced visible; detail visibility remains controlled by .hidden.
+ home.style.setProperty('display','block','important');
+ home.style.setProperty('height','auto','important');
+ home.querySelector('.dle-settings-list').style.setProperty('display','grid','important');
+ settings.style.setProperty('height','auto','important');
  oldPanels.forEach(el=>el.classList.add('hidden'));
  const style=document.createElement('style');style.id='dleSettingsStyles';style.textContent=`.dle-settings-list{display:grid;gap:8px}.dle-settings-link{display:flex;align-items:center;gap:13px;text-align:left;width:100%;background:#112b46;border:1px solid #315473;border-radius:12px;padding:14px;color:#fff}.dle-settings-link>span:nth-child(2){flex:1}.dle-settings-link strong,.dle-settings-link small{display:block}.dle-settings-link small{font-size:12px;color:#a9c3da;margin-top:4px}.dle-settings-icon{font-size:22px;width:28px}.dle-settings-detail{background:#0d2036;border:1px solid #304f6d;border-radius:12px;padding:14px;margin-top:12px}.dle-settings-detail label{display:flex;gap:8px;align-items:center;margin:12px 0}.dle-settings-detail input[type=checkbox]{width:auto}.dle-settings-detail .actions{margin-top:12px}`;document.head.append(style);
  function detail(id){const el=$('dleSettingsDetail');const title=categories.find(x=>x[3]===id)?.[1]||'Settings';
@@ -50,8 +56,8 @@ function install(){
   else if(id==='game')body='<p class="muted">Choose starting score, check-in, checkout, sets and legs when creating a new match. Existing match settings remain unchanged.</p>';
   else if(id==='general')body='<p class="muted">Your game data and preferences are stored locally on this device.</p>';
   else body='<p class="muted">DARTHS uses its existing dark theme. Your original horizontal scorecards remain unchanged.</p>';
-  el.innerHTML=`<div class="dle-settings-detail">${back}<h2>${title}</h2>${body}</div>`;el.classList.remove('hidden');home.querySelector('.dle-settings-list').classList.add('hidden');
-  $('dleSettingsBack').onclick=()=>{el.classList.add('hidden');home.querySelector('.dle-settings-list').classList.remove('hidden')};
+  el.innerHTML=`<div class="dle-settings-detail">${back}<h2>${title}</h2>${body}</div>`;el.classList.remove('hidden');home.querySelector('.dle-settings-list').style.setProperty('display','none','important');
+  $('dleSettingsBack').onclick=()=>{el.classList.add('hidden');home.querySelector('.dle-settings-list').style.setProperty('display','grid','important')};
   if(id==='sound'){ $('dleVoice').onchange=e=>{if($('voice')){$('voice').checked=e.target.checked;$('voice').dispatchEvent(new Event('change'))}};$('dleEffects').onchange=e=>{if($('effects')){$('effects').checked=e.target.checked;$('effects').dispatchEvent(new Event('change'))}} }
   if(id==='layout'){$('dleHostOpen').onclick=()=>open('host');$('dleSpectatorOpen').onclick=()=>open('spectator')}
   if(id==='backup'){$('dleExport').onclick=()=>$('export')?.click();$('dleClear').onclick=()=>$('clear')?.click()}
