@@ -126,7 +126,19 @@ function indicator(g,p,i){
           const order=layout.order||['score','sets','legs','darts','stats'];
           let st=document.getElementById('watch-custom-layout');if(!st){st=document.createElement('style');st.id='watch-custom-layout';document.head.append(st)}
           const ord=key=>Math.max(1,order.indexOf(key)+1);
-          st.textContent=`.watch-row{column-gap:${Math.max(2,Math.min(35,Number(layout.gap)||12))}px!important;font-family:${['Arial','Poppins','Roboto','Inter'].includes(layout.font)?layout.font:'Arial'},sans-serif;font-size:${Math.max(11,Math.min(30,Number(layout.fontSize)||16))}px}.watch-left{order:${ord('score')}}.watch-row>.win-indicators{order:${Math.min(ord('sets'),ord('legs'))}}.watch-middle{order:${ord('darts')}}.watch-right{order:${ord('stats')}}`;
+          st.textContent=`.watch-row{column-gap:${Math.max(2,Math.min(35,Number(layout.gap)||12))}px!important;font-family:${['Arial','Poppins','Roboto','Inter'].includes(layout.font)?layout.font:'Arial'},sans-serif;font-size:${Math.max(11,Math.min(30,Number(layout.fontSize)||16))}px}.watch-left{order:${ord('score')}}.watch-row>.win-indicators{order:${Math.min(ord('sets'),ord('legs'))}}.watch-middle{order:${ord('darts')}}.watch-right{order:${ord('stats')}}
+          if(layout.elements){
+            const map={score:['.watch-left strong'],name:['.watch-left span'],indicators:['.win-indicators'],darts:['.watch-darts'],total:['.watch-middle>b'],stats:['.watch-right']};
+            for(const [key,selectors] of Object.entries(map)){
+              const e=layout.elements[key];if(!e)continue;
+              const size=Math.max(9,Math.min(100,Number(e.size)||16));
+              const color=/^#[0-9a-fA-F]{6}$/.test(e.color)?e.color:'#ffffff';
+              st.textContent+=selectors.map(sel=>`${sel}{font-size:${size}px!important;color:${color}!important;${e.visible===false?'display:none!important;':''}}`).join('');
+            }
+          }
+          if(['default','dark','blue'].includes(layout.theme)){
+            st.textContent+=`.watch-row{background:${layout.theme==='blue'?'#10325a':layout.theme==='dark'?'#05080e':'#0c2238'}!important}`;
+          }
         }
         content.innerHTML = `<section class="watch-overview"><h1>${g.points} Darts</h1><div class="overview-grid"><div><small>START SCORE</small><strong>${g.points}</strong></div><div><small>CHECK-IN</small><strong>${escapeHTML(g.checkin)}</strong></div><div><small>CHECKOUT</small><strong>${escapeHTML(g.checkout)}</strong></div></div><p>Set ${g.setNumber} · Leg ${g.legNumber} · Round ${g.round} · ${g.format==='best'?'Best of':'First to'} ${g.legs} legs</p></section><section class="watch-rows">${g.participants.map((p,i)=>{const shown=i===g.current&&Array.isArray(g.turn)&&g.turn.length?g.turn:(p.last||[]).slice(0,3);const bust=!!p.lastBust&&i!==g.current;const avg=(p.stats?.darts)?(p.stats.scored/p.stats.darts*3).toFixed(2):'0.00';return `<div class="watch-row ${i===g.current?'active':''} ${bust?'bust':''}"><div class="watch-left"><strong>${p.remaining}</strong><span>${escapeHTML(p.label)}</span></div>${indicator(g,p,i)}<div class="watch-middle"><div class="watch-darts">${[0,1,2].map(j=>`<div>${shown[j]?escapeHTML(shown[j].label):''}</div>`).join('')}</div><b>${bust?0:shown.reduce((a,d)=>a+(d.score||0),0)}</b></div><div class="watch-right"><span>🎯 ${p.stats?.darts||0}</span><span>⊘ ${avg}</span></div></div>`}).join('')}</section><footer>${escapeHTML(g.participants[g.current]?.label||'Player')}'s turn</footer>`;
         if(!g.finished && g.celebration?.at && Date.now()-g.celebration.at<4200){
