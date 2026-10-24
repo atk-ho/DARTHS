@@ -1,5 +1,5 @@
-const CACHE = 'darths-settings-v5';
-const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './live-sync.js', './firebase-config.js', './spectator.css', './layout-editor.css', './layout-editor.js', './settings.css', './settings.js', './release.json', './terms.html', './privacy.html', './copyright.html'];
+const CACHE = 'darths-host-layout-v5';
+const ASSETS = ['./', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png', './live-sync.js', './firebase-config.js', './spectator.css', './layout-editor.css', './layout-editor.js', './terms.html', './privacy.html', './copyright.html'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)).then(() => self.skipWaiting()));
 });
