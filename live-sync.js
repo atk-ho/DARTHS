@@ -126,7 +126,7 @@ function indicator(g,p,i){
           const order=layout.order||['score','sets','legs','darts','stats'];
           let st=document.getElementById('watch-custom-layout');if(!st){st=document.createElement('style');st.id='watch-custom-layout';document.head.append(st)}
           const ord=key=>Math.max(1,order.indexOf(key)+1);
-          st.textContent=`.watch-row{column-gap:${Math.max(2,Math.min(35,Number(layout.gap)||12))}px!important;font-family:${['Arial','Poppins','Roboto','Inter'].includes(layout.font)?layout.font:'Arial'},sans-serif;font-size:${Math.max(11,Math.min(30,Number(layout.fontSize)||16))}px}.watch-left{order:${ord('score')}}.watch-row>.win-indicators{order:${Math.min(ord('sets'),ord('legs'))}}.watch-middle{order:${ord('darts')}}.watch-right{order:${ord('stats')}}
+          st.textContent=`.watch-row{column-gap:${Math.max(2,Math.min(35,Number(layout.gap)||12))}px!important;font-family:${['Arial','Poppins','Roboto','Inter'].includes(layout.font)?layout.font:'Arial'},sans-serif;font-size:${Math.max(11,Math.min(30,Number(layout.fontSize)||16))}px}.watch-left{order:${ord('score')}}.watch-row>.win-indicators{order:${Math.min(ord('sets'),ord('legs'))}}.watch-middle{order:${ord('darts')}}.watch-right{order:${ord('stats')}}`;
           if(layout.elements){
             const map={score:['.watch-left strong'],name:['.watch-left span'],indicators:['.win-indicators'],darts:['.watch-darts'],total:['.watch-middle>b'],stats:['.watch-right']};
             for(const [key,selectors] of Object.entries(map)){
