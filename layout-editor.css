@@ -43,3 +43,26 @@
 .dle-part{touch-action:manipulation}
 @media(min-width:650px){.dle-shell{padding:18px}.dle-visibility-list{grid-template-columns:repeat(2,minmax(0,1fr))}.dle-card{padding:16px}.dle-layout-tabs button{font-size:14px}.dle-stage.mobile{max-width:400px}}
 @media(max-width:390px){.dle-shell{padding:8px}.dle-card{padding:9px}.dle-overlay{padding-left:5px;padding-right:5px}.dle-scorecard{gap:3px;padding:5px;min-height:76px}.dle-darts span{padding:3px 2px;font-size:10px}.dle-stats{font-size:9px}.dle-wins b{padding:2px}}
+
+/* Compact editor: one selected-element control and one visibility toggle. */
+.dle-selected-card{padding:12px}
+.dle-selected-head,.dle-position-head{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dle-selected-head h3,.dle-position-head h3{margin:0}
+.dle-selected-head button{font-size:11px;padding:8px 10px;white-space:nowrap}
+.dle-selected-row{display:flex;align-items:center;gap:10px;margin-top:9px;background:#071e33;border:1px solid #2b5475;border-radius:10px;padding:9px}
+.dle-selected-icon{display:grid;place-items:center;flex:0 0 36px;height:36px;border:1px dashed #32a4ff;color:#a8dcff;border-radius:7px;font-size:23px}
+.dle-selected-field{flex:1;min-width:0;display:flex;align-items:center;gap:8px}
+.dle-selected-field>span{font-size:12px;color:#bdd8ee;flex:0 0 auto}
+.dle-selected-field select{width:100%;min-width:0;padding:8px}
+.dle-position-size{padding:13px}
+.dle-position-head{align-items:flex-start;margin-bottom:12px}
+.dle-visibility-control{display:flex;align-items:center;gap:8px;flex:0 0 auto;background:#08253e;border:1px solid #315c7c;border-radius:10px;padding:8px;cursor:pointer;font-size:11px}
+.dle-visibility-control input{position:absolute;opacity:0;width:1px;height:1px}
+.dle-visibility-control input:checked+.dle-switch{background:#09a961}
+.dle-visibility-control input:checked+.dle-switch:after{transform:translateX(18px)}
+.dle-visibility-control input:focus-visible+.dle-switch{outline:2px solid #fff;outline-offset:2px}
+.dle-size-section{border-top:1px solid #294967;padding-top:12px;margin-top:12px}
+.dle-size-section h3{font-size:13px;margin-bottom:8px}
+.dle-size-controls input{flex:1;text-align:center;min-width:0}
+.dle-stage .dle-part.dle-selected{outline:2px dashed #49c6ff!important;outline-offset:2px;background:rgba(22,120,225,.14);z-index:2}
+@media(max-width:430px){.dle-selected-field{display:block}.dle-selected-field>span{display:none}.dle-selected-field select{width:100%}.dle-position-head{gap:5px}.dle-visibility-control{padding:7px 5px;font-size:10px}.dle-visibility-control .dle-switch{width:38px}.dle-visibility-control input:checked+.dle-switch:after{transform:translateX(14px)}}
