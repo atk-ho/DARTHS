@@ -1,0 +1,25 @@
+/* DARTHS home-only responsive enhancements */
+#setup>.panel{background:#15253d;border:1px solid #304965;border-radius:15px;padding:17px 14px;margin-bottom:12px}
+#setup>.panel h2{font-size:19px;margin:0 0 5px}
+#setup .home-subtitle{margin:0 0 16px;color:#a9c3df;font-size:13px}
+#setup .grid{gap:12px 10px}
+#setup .grid label{font-size:12px;color:#a8c6e7;margin-bottom:6px}
+#setup .grid select,#setup .grid input{border-radius:10px;min-height:45px;background:#0b192c;border-color:#35516f}
+#setup #start{min-height:48px;border-radius:11px;margin-top:12px;font-weight:700;background:#087bfa}
+.home-select-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.home-select-head .muted{font-size:12px;margin:0 0 12px}
+.home-count{background:#103b69;border:1px solid #236bb1;color:#b9ddff;border-radius:999px;padding:5px 9px;font-size:11px;white-space:nowrap}
+.home-player-actions{display:flex;gap:8px;margin-bottom:12px}
+.home-player-actions button{padding:9px 12px;min-height:38px;font-size:12px;border-radius:9px;flex:1}
+#homeQuickAdd{background:#0c427b;border-color:#1689f7;color:#fff}
+#selection{display:flex;flex-direction:column;gap:8px;max-height:360px;overflow-y:auto}
+#selection .home-player-row{display:flex;align-items:center;gap:10px;background:#0d1e33;border:1px solid #2a4664;border-radius:11px;padding:9px 11px;cursor:pointer;min-height:55px}
+#selection .home-player-row.is-selected{border-color:#267bd1;background:#112c4d}
+#selection .home-player-row input[type=checkbox]{width:19px;height:19px;flex:0 0 19px;accent-color:#1684ef;margin:0}
+#selection .home-avatar{display:flex;align-items:center;justify-content:center;width:33px;height:33px;flex:0 0 33px;border-radius:50%;background:hsl(var(--avatar-hue) 76% 42%);color:white;font-weight:800;font-size:14px}
+#selection .home-player-name{flex:1;min-width:0;overflow-wrap:anywhere;font-size:14px;font-weight:600}
+#selection .home-player-status{font-size:11px;color:#95b5d6}
+#selection .is-selected .home-player-status{color:#6cb7ff}
+.tabs [data-tab] .tab-icon svg{width:22px;height:22px;display:block}
+.tabs [data-tab] .tab-icon{display:flex;align-items:center;justify-content:center}
+@media(max-width:420px){#setup>.panel{padding:14px 11px}#setup .grid{gap:10px 8px}#selection .home-player-status{display:none}.tabs [data-tab] .tab-icon svg{width:21px;height:21px}}
