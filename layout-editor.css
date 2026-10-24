@@ -170,3 +170,21 @@ body.game-active{padding-bottom:0}body.game-active #toast{bottom:15px}
 .dle-stage .dle-scorecard .dle-part[data-part="statDarts"],.dle-stage .dle-scorecard .dle-part[data-part="statAvg"]{display:block}
 .dle-stage .dle-scorecard .dart-slots{display:flex}
 .dle-stage .dle-scorecard .dle-part.dle-selected{outline:2px dashed #4bc6ff!important;outline-offset:2px}
+
+/* Mobile movement fix: allow edited elements to extend beyond their grid cell. */
+.dle-stagewrap{overflow:auto!important;}
+.dle-stage .dle-scorecard,.dle-stage .dle-scorecard.score-card{overflow:visible!important;}
+.dle-stage .dle-part{overflow:visible!important;max-width:none!important;}
+.dle-stage .dle-part.dle-selected{position:relative;z-index:5!important;outline:2px dashed #56d4ff!important;outline-offset:3px;}
+.dle-stage .dle-container-selected{outline:2px dashed #56d4ff!important;outline-offset:4px;}
+/* Consistent centered DARTHS modal dialogs, independent of the editor scroll. */
+.dle-dialog-backdrop{position:fixed;inset:0;z-index:30000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(0,7,19,.82);backdrop-filter:blur(5px)}
+.dle-dialog{width:min(420px,100%);max-height:90vh;overflow:auto;border:1px solid #315e87;border-radius:18px;background:linear-gradient(150deg,#102c49,#07172b);color:#f4f8ff;text-align:center;padding:27px 20px 20px;box-shadow:0 24px 65px #000a;animation:dle-modal-in .18s ease-out}
+@keyframes dle-modal-in{from{opacity:0;transform:translateY(9px) scale(.98)}to{opacity:1;transform:translateY(0) scale(1)}}
+.dle-dialog-icon{display:grid;place-items:center;width:70px;height:70px;margin:0 auto 16px;border:4px solid #3a9fff;border-radius:50%;color:#3a9fff;font-size:40px;font-weight:700;line-height:1}
+.dle-dialog-warning{border-color:#ffbd4d;color:#ffbd4d}.dle-dialog-error{border-color:#ff6478;color:#ff6478}.dle-dialog-success{border-color:#3cda91;color:#3cda91}
+.dle-dialog h2{font-size:23px;margin:0 0 10px;text-align:center}.dle-dialog p{font-size:14px;line-height:1.55;color:#d7e6f7;margin:0 0 23px;text-align:center}
+.dle-dialog-buttons{display:flex;justify-content:center;gap:10px}.dle-dialog-buttons button{flex:1;min-width:0;min-height:47px;border-radius:10px;font-weight:700;font-size:14px;color:white;border:1px solid #56799c;background:#173653;padding:10px}
+.dle-dialog-buttons .dle-dialog-confirm{background:#1278f4;border-color:#389bff}.dle-dialog-buttons .dle-dialog-danger{background:#c92d39;border-color:#ff5362}
+.dle-dialog-buttons button:focus-visible{outline:3px solid #f6c45e;outline-offset:3px}
+@media(max-width:370px){.dle-dialog{padding:23px 14px 16px}.dle-dialog-buttons{gap:7px}.dle-dialog-buttons button{font-size:12px;padding:8px 5px}}
