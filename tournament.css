@@ -138,3 +138,26 @@
 @media(max-height:480px) and (orientation:landscape){.tour-match-overlay .tour-match-detail{width:min(700px,100%)}.tour-match-overlay .tour-stat-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(prefers-reduced-motion:reduce){.tour-match-overlay{animation:none}}
 .tour-page:has(.tour-match-overlay){animation:none}
+
+/* Spectator bracket presentation and host size controls */
+.tour-spectator-bracket>h2{text-align:center;font-size:clamp(23px,3vw,38px);margin:20px 0 26px}
+.tour-spectator-bracket .tour-spectator-scroll{display:flex;justify-content:safe center;align-items:safe center;overflow:auto;min-height:50vh}
+.tour-bracket-zoom-space{flex:none;position:relative}
+.tour-bracket-controls{margin:12px 0;padding:12px;border:1px solid #285477;border-radius:10px;background:#0b2239;display:grid;gap:8px}
+.tour-bracket-controls h4{margin:0 0 3px}.tour-bracket-controls label{display:flex;justify-content:space-between;font-size:12px;color:#d0e4f8}
+.tour-bracket-controls input[type=range]{width:100%;accent-color:#1688f8}
+.tour-bracket-zoom-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.tour-bracket-zoom-actions button{min-height:35px}
+.tour-champion-celebration{position:relative;overflow:hidden;isolation:isolate;min-height:75vh;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.tour-champion-celebration .watch-trophy{font-size:clamp(100px,13vw,175px);animation:tourTrophyGlow 2.8s ease-in-out infinite alternate}
+.tour-champion-celebration h1{color:#ffd15b}.tour-champion-name{font-size:clamp(36px,6vw,70px)!important;margin:10px 0}
+.tour-confetti{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:-1}
+.tour-confetti i{position:absolute;top:-12%;left:var(--x);width:9px;height:17px;background:#ffd34b;opacity:.95;animation:tourConfettiFall var(--duration) linear var(--delay) infinite;transform:rotate(30deg)}
+.tour-confetti i:nth-child(3n){background:#138dff}.tour-confetti i:nth-child(5n){background:#f9faff;width:6px;height:9px}
+@keyframes tourConfettiFall{from{transform:translateY(-20px) rotate(0)}to{transform:translateY(105vh) rotate(680deg)}}
+@keyframes tourTrophyGlow{from{filter:drop-shadow(0 0 10px #ffc85a)}to{filter:drop-shadow(0 0 45px #ffcf58)}}
+@media(prefers-reduced-motion:reduce){.tour-confetti i,.tour-champion-celebration .watch-trophy{animation:none}}
+
+.tour-bracket-scroll.tour-host-fullscreen{position:fixed!important;inset:0!important;z-index:99999!important;width:100vw!important;height:100dvh!important;max-height:none!important;background:#06192e!important;border-radius:0!important;display:flex;align-items:safe center;justify-content:safe center;overflow:auto!important;padding:65px 18px 18px!important;box-sizing:border-box}
+.tour-bracket-scroll.tour-host-fullscreen .tour-bracket-canvas{flex:none}
+.tour-host-exit-fullscreen{position:fixed;top:12px;right:14px;z-index:100001;background:#21476b;color:white;border:1px solid #4778a2;border-radius:9px;padding:10px 15px;font-weight:700}

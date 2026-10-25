@@ -33,6 +33,7 @@ if (!configured) {
     let currentTournament = null;
     let tournamentMode = 'intro';
     let tournamentLiveId = null;
+    let spectatorBracketSettings={zoom:100,fit:'auto'};
     let generation = 0;
     let chain = Promise.resolve();
     let lastError = null;
@@ -51,7 +52,7 @@ if (!configured) {
           updatedAt: Date.now(),
           game: currentGame ? copy(currentGame) : null,
           viewMode: currentTournament ? tournamentMode : 'match',
-          tournament: currentTournament ? copy(currentTournament) : (currentGame?.tournamentId ? {id:currentGame.tournamentId,name:currentGame.tournamentName,rounds:currentGame.tournamentBracket,players:currentGame.tournamentPlayers||[]} : null)
+          tournament: currentTournament ? {...copy(currentTournament),bracketDisplay:copy(spectatorBracketSettings)} : (currentGame?.tournamentId ? {id:currentGame.tournamentId,name:currentGame.tournamentName,rounds:currentGame.tournamentBracket,players:currentGame.tournamentPlayers||[]} : null)
         };
         await set(roomRef(target), record);
         lastError = null;
@@ -64,6 +65,12 @@ if (!configured) {
     }
 
     window.DARTHS_SYNC = {
+      getBracketDisplay(){return {...spectatorBracketSettings}},
+      async setBracketDisplay(options){
+        spectatorBracketSettings={zoom:Math.max(50,Math.min(200,Number(options.zoom)||100)),fit:['auto','center','manual'].includes(options.fit)?options.fit:'auto'};
+        if(room&&currentTournament)await publishLatest();
+        return {...spectatorBracketSettings};
+      },
       async requestSpectatorFullscreen(){
         if(!room || (!currentTournament && !currentGame))throw new Error('Go Live or share a match first');
         const request=Date.now();
@@ -190,14 +197,29 @@ function indicator(g,p,i){
             const person=p=>`<span class="tour-node-person ${completed&&m.winner?.id===p?.id?'tour-node-victor':''}">${p?escapeHTML(p.label):'To be determined'}${completed&&m.winner?.id===p?.id?' ✓':''}</span>`;
             return `<div class="tour-node ${completed?'tour-node-done':''} ${ready?'tour-node-ready':''}" style="left:${r*(width+gap)+12}px;top:${center(r,i)-37}px;width:${width}px"><small>${r===rounds.length-1?'FINAL':`ROUND ${r+1}`} · M${i+1}${m.status==='bye'?' · BYE':completed?' · FINISHED':''}</small>${person(m.a)}${person(m.b)}${m.score?`<small>${escapeHTML(m.score)}</small>`:''}</div>`;
           }).join('')).join('');
-          return `<div class="tour-bracket-guide">Swipe horizontally to follow the tournament</div><div class="tour-bracket-scroll tour-spectator-scroll" tabindex="0"><div class="tour-bracket-canvas" style="width:${fullWidth}px;height:${height}px"><svg class="tour-bracket-lines" viewBox="0 0 ${fullWidth} ${height}">${lines.join('')}</svg>${cards}</div></div>`;
+          return `<div class="tour-bracket-scroll tour-spectator-scroll" tabindex="0"><div class="tour-bracket-canvas" style="width:${fullWidth}px;height:${height}px"><svg class="tour-bracket-lines" viewBox="0 0 ${fullWidth} ${height}">${lines.join('')}</svg>${cards}</div></div>`;
         })();
+        const settings=t.bracketDisplay||{zoom:100,fit:'auto'};
+        const bracketScale=Math.max(.5,Math.min(2,(Number(settings.zoom)||100)/100));
+        const bracketFit=['auto','center','manual'].includes(settings.fit)?settings.fit:'auto';
         const timerEnds=t.countdownEndsAt??b.endsAt??null;
         const timer=`<strong class="tour-screen-timer" id="tourTimer">${timerEnds?tourCountdown(timerEnds):'Waiting for Host'}</strong>`;
         const oldScroll=content.querySelector('.tour-spectator-scroll'),oldX=oldScroll?.scrollLeft||0,oldY=oldScroll?.scrollTop||0;
         const title=mode==='waiting'?'NEXT MATCH':'BREAK TIME';
-        content.innerHTML=`<div class="tour-watch-shell"><div class="tour-watch-heading"><h1>🏆 ${escapeHTML(t.name)}</h1><span class="tour-live-tag">● TOURNAMENT LIVE</span></div>${mode==='intro'?`<div class="tour-watch-intro"><div class="tour-intro-trophy">🏆</div><div class="tour-intro-eyebrow">WELCOME TO</div><h1>DARTHS</h1><h2>${escapeHTML(t.name)}</h2><p>${players.length} players · Single Elimination</p><span>Waiting for the Host to display the bracket</span></div>`:mode==='upnext'?`<div class="tour-watch-upnext"><div class="tour-upnext-label">🎯 UP NEXT · ROUND ${t.upNext?.round||1} · MATCH ${t.upNext?.match||1}</div><div class="tour-watch-versus"><strong>${escapeHTML(t.upNext?.a||'Player A')}</strong><span>VS</span><strong>${escapeHTML(t.upNext?.b||'Player B')}</strong></div><p>MATCH STARTS WHEN THE HOST IS READY</p><strong class="tour-screen-timer" id="tourTimer">${t.upNext?.started?tourCountdown(t.upNext?.endsAt):tourCountdown(Date.now()+(t.upNext?.remainingMs||300000))}</strong><p id="tourUpNextStatus">${t.upNext?.started?(t.upNext?.endsAt?'Countdown running':'Countdown paused'):'Waiting for countdown'}</p></div>`:mode==='waiting'||mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>${mode==='waiting'?'🎯':'☕'}</div><h2>${title}</h2>${timer}<p>${timerEnds&&timerEnds<=Date.now()?'READY FOR NEXT MATCH':mode==='waiting'?'Players, please prepare for your next match.':'We will be back shortly.'}</p></div>`:mode==='stats'?`<div class="tour-watch-back">PLAYER STATISTICS</div>${playerStats(selected)}`:`<div class="tour-spectator-bracket"><h2>TOURNAMENT BRACKET</h2>${bracket}</div>`}</div>`;
-        const newScroll=content.querySelector('.tour-spectator-scroll');if(newScroll){newScroll.scrollLeft=oldX;newScroll.scrollTop=oldY;}
+        content.innerHTML=`<div class="tour-watch-shell">${mode==='intro'?`<div class="tour-watch-intro"><div class="tour-intro-trophy">🏆</div><div class="tour-intro-eyebrow">WELCOME TO</div><h1>DARTHS</h1><h2>${escapeHTML(t.name)}</h2><p>${players.length} players · Single Elimination</p><span>Waiting for the Host to display the bracket</span></div>`:mode==='upnext'?`<div class="tour-watch-upnext"><div class="tour-upnext-label">🎯 UP NEXT · ROUND ${t.upNext?.round||1} · MATCH ${t.upNext?.match||1}</div><div class="tour-watch-versus"><strong>${escapeHTML(t.upNext?.a||'Player A')}</strong><span>VS</span><strong>${escapeHTML(t.upNext?.b||'Player B')}</strong></div><p>MATCH STARTS WHEN THE HOST IS READY</p><strong class="tour-screen-timer" id="tourTimer">${t.upNext?.started?tourCountdown(t.upNext?.endsAt):tourCountdown(Date.now()+(t.upNext?.remainingMs||300000))}</strong><p id="tourUpNextStatus">${t.upNext?.started?(t.upNext?.endsAt?'Countdown running':'Countdown paused'):'Waiting for countdown'}</p></div>`:mode==='waiting'||mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>${mode==='waiting'?'🎯':'☕'}</div><h2>${title}</h2>${timer}<p>${timerEnds&&timerEnds<=Date.now()?'READY FOR NEXT MATCH':mode==='waiting'?'Players, please prepare for your next match.':'We will be back shortly.'}</p></div>`:mode==='stats'?`<div class="tour-watch-back">PLAYER STATISTICS</div>${playerStats(selected)}`:`<div class="tour-spectator-bracket" data-bracket-fit="${bracketFit}"><h2>🏆 ${escapeHTML(t.name)}</h2>${bracket}</div>`}</div>`;
+        const newScroll=content.querySelector('.tour-spectator-scroll');
+        if(newScroll){
+          const canvas=newScroll.querySelector('.tour-bracket-canvas');
+          const w=canvas.offsetWidth,h=canvas.offsetHeight;
+          const fitScale=bracketFit==='auto'?Math.min(1,newScroll.clientWidth/Math.max(1,w),newScroll.clientHeight/Math.max(1,h)):1;
+          const actual=Math.max(.25,fitScale*bracketScale);
+          canvas.style.transform=`scale(${actual})`;
+          canvas.style.transformOrigin='top left';
+          const sizing=document.createElement('div');sizing.className='tour-bracket-zoom-space';
+          sizing.style.width=`${Math.ceil(w*actual)}px`;sizing.style.height=`${Math.ceil(h*actual)}px`;
+          canvas.parentNode.insertBefore(sizing,canvas);sizing.appendChild(canvas);
+          newScroll.scrollLeft=oldX;newScroll.scrollTop=oldY;
+        }
         clearInterval(tourTimer);
         if(mode==='upnext'){
           const update=()=>{const el=content.querySelector('#tourTimer'),note=content.querySelector('#tourUpNextStatus');if(!el)return;const u=t.upNext||{},left=u.endsAt?Math.max(0,u.endsAt-Date.now()):u.remainingMs??300000;el.textContent=tourCountdown(Date.now()+left);if(note&&u.started&&left===0)note.textContent='READY TO START · Waiting for Host'};
@@ -208,7 +230,7 @@ function indicator(g,p,i){
       }
       function renderRecord(record) {
         spectatorFullscreenRequest(record);
-        if(record?.tournament && (record.viewMode!=='match' || !record.game || record.game.breakTime?.active)){status.textContent='● LIVE';renderTourView(record);return}
+        if(record?.tournament && (record.viewMode!=='match' || !record.game || record.game.breakTime?.active)){status.textContent='● TOURNAMENT LIVE';renderTourView(record);return}
         if (!record?.game) {
           status.textContent = 'WAITING';
           content.textContent = 'No active shared match found.';
@@ -256,14 +278,14 @@ function indicator(g,p,i){
         if (g.finished) {
           status.textContent = '● LIVE · MATCH FINISHED';
           const winner = g.participants[g.winnerIndex] || g.participants[0];
-          const winnerName = escapeHTML(winner?.label || 'Winner');const championText=g.championName?`<h2>🏆 TOURNAMENT CHAMPION: ${escapeHTML(g.championName)}</h2><p>${escapeHTML(g.tournamentName||'Championship')}</p>`:'';
+          const winnerName = escapeHTML(winner?.label || 'Winner');const championText=g.championName?`<h2>🏆 TOURNAMENT CHAMPION</h2><p>${escapeHTML(g.tournamentName||'Championship')}</p>`:'';
           const resultsMode = g.resultView === 'results';
           const sorted = [...g.participants].sort((a,b) => (b.sets||0)-(a.sets||0) || (b.legs||0)-(a.legs||0) || (a.remaining||0)-(b.remaining||0));
           const totalDarts = g.participants.reduce((n,p)=>n+(p.stats?.darts||0),0);
           const resultRows = sorted.map((p,i) => `<tr><td>${i+1}</td><td>${p===winner?'👑 ':''}${escapeHTML(p.label)}</td><td>${p.remaining}</td><td>${p.sets||0}</td><td>${p.legs||0}</td><td>${p.stats?.darts||0}</td><td>${p.stats?.darts?(3*(p.stats.scored||0)/p.stats.darts).toFixed(2):'0.00'}</td><td>${p.stats?.high||0}</td><td>${p.stats?.checkoutHits||0} / ${p.stats?.checkoutAttempts||0}</td><td>${p===winner?'WINNER':'—'}</td></tr>`).join('');
           const overlay = resultsMode
             ? `<div class="watch-modal" role="dialog" aria-label="Match results"><div class="watch-modal-panel watch-results-panel"><h1>🏆 Game Results</h1>${championText}<p>${g.points} Darts · Set ${g.setNumber} · Leg ${g.legNumber}</p><div class="watch-table-scroll"><table><thead><tr><th>#</th><th>Player</th><th>Final</th><th>Sets</th><th>Legs</th><th>Darts</th><th>Average</th><th>High</th><th>Checks</th><th>Status</th></tr></thead><tbody>${resultRows}</tbody></table></div><div class="watch-summary"><div>Total Darts<strong>${totalDarts}</strong></div><div>Rounds<strong>${g.round||1}</strong></div><div>Winner<strong>${winnerName}</strong></div></div><p class="watch-viewonly">Live results · Spectator view only</p></div></div>`
-            : `<div class="watch-modal" role="dialog" aria-label="Winner announcement"><div class="watch-modal-panel watch-winner-panel"><div class="watch-trophy">🏆</div><h1>CONGRATULATIONS!</h1>${championText}<h2>${winnerName} is the Winner!</h2><p>${g.points} Darts · Set ${g.setNumber} · Leg ${g.legNumber}</p><p>Winner by Checkout!</p></div></div>`;
+            : `<div class="watch-modal" role="dialog" aria-label="Winner announcement"><div class="watch-modal-panel watch-winner-panel ${g.championName?'tour-champion-celebration':''}">${g.championName?`<div class="tour-confetti" aria-hidden="true">${Array.from({length:45},(_,i)=>`<i style="--x:${(i*37)%100}%;--delay:${(i*13)%31/10}s;--duration:${3+(i%5)}s"></i>`).join('')}</div>`:''}<div class="watch-trophy">🏆</div><h1>CONGRATULATIONS!</h1>${g.championName?`<h2 class="tour-champion-name">${winnerName}</h2>${championText}`:`${championText}<h2>${winnerName} is the Winner!</h2>`}<p>${g.points} Darts · Set ${g.setNumber} · Leg ${g.legNumber}</p><p>Winner by Checkout!</p></div></div>`;
           content.insertAdjacentHTML('beforeend', `<div class="watch-winner-banner">🏆 ${winnerName} is the Winner! 🏆</div>${overlay}`);
         }
         lastSignature = signature;
