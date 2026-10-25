@@ -282,10 +282,6 @@ function indicator(g,p,i){
           const ends=g.breakTime.endsAt,minutes=ends?Math.max(0,Math.ceil((ends-Date.now())/60000)):null;
           content.insertAdjacentHTML('beforeend',`<div class="watch-modal" role="dialog" aria-label="Break Time"><div class="watch-modal-panel" style="text-align:center"><h1>☕ ${g.breakTime.template==='commercial'?'COMMERCIAL BREAK':'BREAK TIME'}</h1><p>${escapeHTML(g.breakTime.message||'Please stand by')}</p>${minutes!==null?`<h1>${minutes} min</h1>`:''}<p>Live match will resume shortly</p></div></div>`);
         }
-                if(g.tournamentBracket?.length){
-          const tournamentSummary=g.tournamentBracket.map((round,r)=>`<div><b>${r===g.tournamentBracket.length-1?'Final':`Round ${r+1}`}</b>: ${round.map(m=>`${(m.players||[m.a,m.b]).map(c=>escapeHTML(c?.label||'TBD')).join(' vs ')}${m.winner?' → '+escapeHTML(m.winner.label):''}`).join(' · ')}</div>`).join('');
-          content.insertAdjacentHTML('beforeend',`<details class="watch-tournament"><summary>🏆 ${escapeHTML(g.tournamentName||'Tournament')} — View Bracket</summary>${tournamentSummary}</details>`);
-        }
                 // A spectator is read-only: host drives winner/results phase via game.resultView.
         if (g.finished) {
           status.textContent = '● LIVE · MATCH FINISHED';
