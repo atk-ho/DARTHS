@@ -140,7 +140,7 @@ const name=(id)=>EVENTS[id][0];
 function notify(message){const el=document.getElementById('toast');if(el){el.textContent=message;el.style.display='block';setTimeout(()=>el.style.display='none',3500)}else console.info(message)}
 function managerHTML(){
  return `<section class="darths-audio-manager panel" id="darthsAudioManager">
- <h2>🎵 DARTHS Sound & Music</h2><p class="muted">Original built-in synthesized themes, or your own audio files. Settings are saved on this device.</p>
+ <h2>🎵 Game Sounds & Music</h2><p class="muted">Original built-in synthesized themes, or your own audio files. Settings are saved on this device.</p>
  <div class="darths-audio-switches">
  ${[['music','Background Music'],['effects','Sound Effects'],['voice','Voice Announcer'],['duck','Lower Music During Voice']].map(([id,label])=>`<label><input type="checkbox" data-audio-flag="${id}" ${settings[id]?'checked':''}> ${label}</label>`).join('')}
  </div>

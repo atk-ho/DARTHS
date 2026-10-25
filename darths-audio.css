@@ -35,3 +35,25 @@
 #settings .ds-audio-mount .darths-audio-event-body input[type=file]{font-size:12px}
 @media(max-width:620px){#settings .ds-audio-mount .darths-audio-event-list{grid-template-columns:1fr}#settings .ds-audio-mount>.darths-audio-manager{padding:11px}}
 #darthsEnableAudio{animation:none!important}
+
+/* Audio & Sounds: one save action, below all sections */
+#settings .ds-audio-save{width:100%;margin:14px 0 12px}
+#settings .ds-audio-save button{display:block;width:100%;min-height:44px;border-radius:9px;font-weight:700}
+#settings .ds-audio-mount{margin-top:12px}
+#settings .ds-audio-mount>.darths-audio-manager{max-width:100%;overflow:hidden}
+#settings .darths-audio-manager h2{font-size:clamp(15px,2.4vw,19px);line-height:1.3}
+#settings .darths-audio-switches{grid-template-columns:repeat(2,minmax(0,1fr))}
+#settings .darths-audio-switches label{min-width:0;overflow-wrap:anywhere}
+#settings .darths-audio-event-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+#settings .darths-audio-event summary{min-width:0;overflow-wrap:anywhere}
+#settings .darths-audio-event-body input,#settings .darths-audio-event-body select{max-width:100%;box-sizing:border-box}
+@media(max-width:640px){
+ #settings .ds-audio-mount>.darths-audio-manager{padding:10px}
+ #settings .darths-audio-switches{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+ #settings .darths-audio-switches label{padding:8px 6px;font-size:11px}
+ #settings .darths-audio-event-list{grid-template-columns:minmax(0,1fr);gap:7px}
+ #settings .darths-audio-event summary{padding:11px;font-size:12px}
+ #settings .darths-audio-event-body{padding:10px}
+ #settings .ds-audio-save{margin-bottom:18px}
+}
+@media(max-width:340px){#settings .darths-audio-switches{grid-template-columns:1fr}}
