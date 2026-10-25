@@ -27,3 +27,11 @@
 #settings .darths-audio-manager .darths-audio-event-list{grid-template-columns:repeat(2,minmax(0,1fr))}
 @media(max-width:650px){#settings .darths-audio-manager .darths-audio-event-list{grid-template-columns:1fr}}
 #darthsEnableAudio{animation:none!important}
+
+/* Sound & Voice: dedicated, persistent mounting point for music and custom effects. */
+#settings .ds-audio-mount{display:block;width:100%;min-width:0;margin-top:14px}
+#settings .ds-audio-mount>.darths-audio-manager{display:block;width:100%;max-width:100%;box-sizing:border-box;background:#142a44;border:1px solid #315579;border-radius:12px;padding:14px;color:#eff7ff}
+#settings .ds-audio-mount .darths-audio-event-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+#settings .ds-audio-mount .darths-audio-event-body input[type=file]{font-size:12px}
+@media(max-width:620px){#settings .ds-audio-mount .darths-audio-event-list{grid-template-columns:1fr}#settings .ds-audio-mount>.darths-audio-manager{padding:11px}}
+#darthsEnableAudio{animation:none!important}

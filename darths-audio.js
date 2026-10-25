@@ -159,9 +159,12 @@ function managerHTML(){
  <p class="muted">Spectators must tap Enable Audio once. Uploaded files are local; to share custom music across devices, use a public HTTPS audio URL. Built-in music requires no uploads.</p></section>`;
 }
 function mountManager(){
- if(viewing||document.querySelector('#darthsAudioManager'))return;
- const settingsPage=document.querySelector('#settings .ds-shell');if(!settingsPage)return;
- const block=document.createElement('div');block.innerHTML=managerHTML();settingsPage.appendChild(block.firstElementChild);
+ if(viewing)return;
+ const settingsPage=document.querySelector('#settings .ds-shell');
+ const slot=settingsPage?.querySelector('#dsAudioMount');if(!slot)return;
+ const existing=document.querySelector('#darthsAudioManager');
+ if(existing){if(existing.parentElement===slot)return;existing.remove()}
+ const block=document.createElement('div');block.innerHTML=managerHTML();slot.appendChild(block.firstElementChild);
  const root=document.querySelector('#darthsAudioManager');root.querySelector('#audioOutput').value=settings.output;
  root.addEventListener('change',async e=>{
   const d=e.target;
@@ -183,7 +186,9 @@ function mountManager(){
  });
 }
 if(!viewing)document.addEventListener('pointerdown',()=>{unlock().catch(()=>{})},{once:true,capture:true});
-function initAudioUI(){if(viewing){let attempts=0;const timer=setInterval(()=>{showEnableButton();if(document.querySelector('#darthsEnableAudio')||++attempts>30)clearInterval(timer)},400)}}
+function initAudioUI(){
+ if(!viewing){document.addEventListener('darths:sound-settings-rendered',mountManager);mountManager()}
+ if(viewing){let attempts=0;const timer=setInterval(()=>{showEnableButton();if(document.querySelector('#darthsEnableAudio')||++attempts>30)clearInterval(timer)},400)}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAudioUI,{once:true});else initAudioUI();
 window.DARTHS_AUDIO={unlock,fx,speak,cue,startTheme,stopMusic,watchRecord,broadcastSettings,mountManager,get settings(){return settings},isUnlocked:()=>unlocked,watchEnable:showEnableButton};
 })();
