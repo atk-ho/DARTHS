@@ -8,7 +8,7 @@ const configured = Object.values(firebaseConfig).every(x => x && !String(x).incl
 
 if (viewing) {
   document.head.insertAdjacentHTML('beforeend','<link rel="stylesheet" href="./tournament.css?v=20261025-1">');
-  document.body.innerHTML = `<main class="watch-shell"><header class="watch-header"><div class="watch-brand"><img src="./icons/icon-192.png" alt=""> DARTHS</div><span id="connection">Connecting…</span></header><div id="watchContent" class="watch-content">Loading live scores…</div></main>`;
+  document.body.innerHTML = `<main class="watch-shell"><header class="watch-header"><div class="watch-brand"><img src="./icons/icon-192.png" alt=""> DARTHS</div><div class="watch-header-tools"><button id="watchFullscreen" type="button" aria-label="Enter spectator fullscreen">⛶ Fullscreen</button><span id="connection">Connecting…</span></div></header><div id="watchFullscreenPrompt" class="watch-fullscreen-prompt" hidden><span>Host requested fullscreen</span><button id="watchAcceptFullscreen" type="button">Enter Fullscreen</button><button id="watchDismissFullscreen" type="button" aria-label="Dismiss">✕</button></div><div id="watchContent" class="watch-content">Loading live scores…</div></main>`;
   document.title = 'DARTHS · Live Scoreboard';
 }
 
@@ -64,6 +64,13 @@ if (!configured) {
     }
 
     window.DARTHS_SYNC = {
+      async requestSpectatorFullscreen(){
+        if(!room || (!currentTournament && !currentGame))throw new Error('Go Live or share a match first');
+        const request=Date.now();
+        if(currentTournament)currentTournament.fullscreenRequest=request;
+        else currentGame.spectatorFullscreenRequest=request;
+        await publishLatest();
+      },
       async share(game) {
         currentGame = game;
         if (!room) {
@@ -149,6 +156,18 @@ function indicator(g,p,i){
 }
 
       let tourRecord=null,tourSelected=null,tourTimer=null;
+      let lastFullscreenRequest=0;
+      const enterFullscreen=async()=>{
+        try{if(document.fullscreenElement)await document.exitFullscreen();else await document.documentElement.requestFullscreen();document.getElementById('watchFullscreenPrompt').hidden=true}
+        catch(e){document.getElementById('watchFullscreenPrompt').hidden=true;alert('Fullscreen is not supported in this browser. You can try adding DARTHS to your home screen.')}
+      };
+      document.getElementById('watchFullscreen').onclick=enterFullscreen;
+      document.getElementById('watchAcceptFullscreen').onclick=enterFullscreen;
+      document.getElementById('watchDismissFullscreen').onclick=()=>{document.getElementById('watchFullscreenPrompt').hidden=true};
+      function spectatorFullscreenRequest(record){
+        const requested=Number(record?.tournament?.fullscreenRequest||record?.game?.spectatorFullscreenRequest||0);
+        if(requested>lastFullscreenRequest){lastFullscreenRequest=requested;document.getElementById('watchFullscreenPrompt').hidden=false}
+      }
       function tourCountdown(ends){if(!ends)return 'No timer';const seconds=Math.max(0,Math.ceil((ends-Date.now())/1000));return `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`}
       function renderTourView(record){
         lastSignature='';tourRecord=record;const g=record.game,b=g?.breakTime||{},t=record.tournament||{name:g?.tournamentName||'DARTHS',rounds:g?.tournamentBracket||[],players:g?.tournamentPlayers||[]};
@@ -188,6 +207,7 @@ function indicator(g,p,i){
 
       }
       function renderRecord(record) {
+        spectatorFullscreenRequest(record);
         if(record?.tournament && (record.viewMode!=='match' || !record.game || record.game.breakTime?.active)){status.textContent='● LIVE';renderTourView(record);return}
         if (!record?.game) {
           status.textContent = 'WAITING';

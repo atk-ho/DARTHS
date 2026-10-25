@@ -116,3 +116,25 @@
 .tour-watch-upnext #tourUpNextStatus{color:#4ee9b5;font-weight:800}
 @media(max-width:550px){.tour-countdown-page{padding:12px;gap:10px}.tour-countdown-actions{grid-template-columns:1fr 1fr}.tour-watch-versus{gap:6px}.tour-watch-upnext{padding:12px}}
 @media(max-height:480px) and (orientation:landscape){.tour-countdown-page{max-width:900px;gap:5px;padding:8px}.tour-countdown-clock{font-size:50px}.tour-countdown-page h2{font-size:22px}.tour-countdown-actions{grid-template-columns:repeat(5,minmax(0,1fr))}.tour-countdown-actions #tourStartNow{grid-column:auto}.tour-watch-upnext{min-height:80dvh;gap:5px}.tour-screen-timer{font-size:45px}}
+/* Mobile-first bracket controls and match details dialog */
+.tour-bracket-title{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.tour-bracket-title h3{margin:0}
+.tour-bracket-title button{font-size:12px;min-height:40px;padding:8px 10px}
+.tour-match-overlay{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:12px;background:rgba(1,10,23,.8);backdrop-filter:blur(6px);animation:tourAppear .2s ease}
+.tour-match-overlay .tour-match-detail{width:min(520px,100%);max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain;margin:0;box-shadow:0 25px 70px #0009}
+.tour-page .tour-bracket-scroll{margin-inline:auto}
+.tour-page .tour-bracket-canvas{margin-inline:auto}
+.tour-spectator-bracket .tour-bracket-scroll{margin-inline:auto;width:100%}
+.tour-spectator-bracket .tour-bracket-canvas{margin-inline:auto}
+/* The canvas is only centered when the viewport has enough width. Narrow phones still swipe. */
+.tour-page .tour-bracket-scroll:has(.tour-bracket-canvas){scrollbar-width:thin}
+.watch-header-tools{display:flex;align-items:center;gap:10px}
+.watch-header-tools button{border:1px solid #3c83b9;background:#143657;border-radius:9px;padding:8px 10px;color:#fff;font-weight:700;font-size:12px}
+.watch-fullscreen-prompt:not([hidden]){position:fixed;z-index:9999;top:64px;left:50%;transform:translateX(-50%);display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;background:#123659;color:#fff;border:1px solid #37a7f1;box-shadow:0 10px 30px #0008;padding:13px;border-radius:12px;width:min(94vw,440px)}
+.watch-fullscreen-prompt button{background:#1682e8;border:0;border-radius:8px;color:white;padding:10px 12px;font-weight:700}
+.watch-fullscreen-prompt button:last-child{background:#294b6a}
+.host-display-menu button{display:block;width:100%;margin-top:7px;min-height:36px;text-align:left}
+@media(max-width:650px){.tour-match-overlay{padding:8px}.tour-match-overlay .tour-match-detail{max-height:calc(100dvh - 16px);padding:12px}.tour-bracket-title button{flex-shrink:0}.watch-header-tools{gap:5px}.watch-header-tools button{font-size:11px;padding:6px}}
+@media(max-height:480px) and (orientation:landscape){.tour-match-overlay .tour-match-detail{width:min(700px,100%)}.tour-match-overlay .tour-stat-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(prefers-reduced-motion:reduce){.tour-match-overlay{animation:none}}
+.tour-page:has(.tour-match-overlay){animation:none}
