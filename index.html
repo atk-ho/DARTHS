@@ -214,7 +214,7 @@ const KEY='darts_scoreboard_v1';const defaults=()=>({players:[{id:1,name:'Player
 const $=id=>document.getElementById(id);const save=()=>{const g=db.game;if(g){g.audioConfig=window.DARTHS_AUDIO?.broadcastSettings?.()||g.audioConfig;
  const recentCelebration=g.celebration&&Date.now()-g.celebration.at<4500?g.celebration:null;const event=g.finished?(g.championName?'champion':'match'):recentCelebration?.type;
  const eventId=g.finished?`match:${g.finishedAt}`:recentCelebration?.at?`${event}:${recentCelebration.at}`:null;
- if(eventId&&g.audioEvent?.id!==eventId)g.audioEvent={id:eventId,type:event,label:g.celebration?.label||g.participants?.[g.winnerIndex]?.label||'',at:Date.now()};
+ if(eventId&&g.audioEvent?.id!==eventId&&(!g.audioEvent?.at||g.audioEvent.at<=(recentCelebration?.at||g.finishedAt||0)))g.audioEvent={id:eventId,type:event,label:g.finished?g.participants?.[g.winnerIndex]?.label||'':g.celebration?.label||'',at:Date.now()};
  }try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){toast('Storage unavailable')}if(window.DARTHS_SYNC&&db.game)window.DARTHS_SYNC.publish(db.game).catch(e=>console.warn('Live sync failed:',e));};const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));const toast=s=>{const el=$('toast');el.textContent=s;el.style.display='block';clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.style.display='none',2400)};
 function speak(s){if(window.DARTHS_AUDIO){if(db.settings.voice)window.DARTHS_AUDIO.speak(s);return}if(db.settings.voice&&'speechSynthesis'in window){speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(String(s));u.rate=.95;speechSynthesis.speak(u)}}function beep(bust=false){if(window.DARTHS_AUDIO){if(db.settings.effects)window.DARTHS_AUDIO.fx(bust?'bust':'dart');return}if(!db.settings.effects)return;try{let ctx=new (window.AudioContext||window.webkitAudioContext)(),osc=ctx.createOscillator(),gain=ctx.createGain();osc.connect(gain);gain.connect(ctx.destination);osc.frequency.value=bust?180:650;gain.gain.value=.08;osc.start();osc.stop(ctx.currentTime+.13);osc.onended=()=>ctx.close()}catch(e){}}
 function target(n,format){return format==='best'?Math.floor(n/2)+1:n}function statDefaults(){return{darts:0,scored:0,turns:0,high:0,oneEighties:0,checkoutAttempts:0,checkoutHits:0,firstNine:0,firstNineDarts:0,busts:0}}function name(id){return db.players.find(p=>p.id===id)?.name||'Player'}
@@ -248,7 +248,7 @@ function completeMatch(winner){
  showMatchConfetti();victorySound();if(!window.DARTHS_AUDIO)speak(`${winner.label} wins the match!`);
 }
 function victorySound(){
- if(window.DARTHS_AUDIO){if(db.settings.effects)window.DARTHS_AUDIO.cue(db.game?.championName?'champion':'match',db.game?.participants?.[db.game?.winnerIndex]?.label);return}
+ if(window.DARTHS_AUDIO){const kind=db.game?.championName?'champion':'match';window.DARTHS_AUDIO.cue(kind,db.game?.participants?.[db.game?.winnerIndex]?.label);return}
  if(!db.settings.effects)return;
  try{
   const ctx=new (window.AudioContext||window.webkitAudioContext)();
@@ -852,5 +852,5 @@ function shareTournament(id){
 }
 renderRoster();
 
-</script><script src="./layout-editor.js?v=20261024-full"></script><script src="./settings.js?v=20261024-full"></script><link rel="stylesheet" href="./darths-audio.css?v=20261025-audio1"><script src="./darths-audio.js?v=20261025-audio1"></script><script type="module" src="./live-sync.js?v=20261025-fullscreen-modal-2"></script>
+</script><script src="./layout-editor.js?v=20261024-full"></script><script src="./settings.js?v=20261024-full"></script><link rel="stylesheet" href="./darths-audio.css?v=20261025-audio2"><script src="./darths-audio.js?v=20261025-audio2"></script><script type="module" src="./live-sync.js?v=20261025-fullscreen-modal-2"></script>
 </body></html>

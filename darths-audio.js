@@ -66,7 +66,7 @@ async function startTheme(key){
    // Files uploaded on Host are intentionally NOT sent to spectator via Firebase.
    const url=(viewing?conf.url:null)||(file?URL.createObjectURL(file):conf.url);
    if(token!==playingToken)return;
-   if(!url)return;
+   if(!url){console.warn('No custom audio file or hosted URL for',key);return;}
    if(file&&!viewing)blobUrl=url;
    media=new Audio(url);media.loop=conf.loop;media.volume=Math.min(1,settings.master/100*conf.volume/100);
    await media.play();return;
@@ -98,7 +98,7 @@ function speak(text){
 }
 function cue(type,label){
  if(!type)return;
- if(type==='champion'){fx('match');startTheme('champion');speak(`Ladies and gentlemen, your DARTHS tournament champion, ${label||'the winner'}!`)}
+ if(type==='champion'){fx('match');if(viewing||settings.output==='both'||settings.output==='host')startTheme('champion');speak(`Ladies and gentlemen, your DARTHS tournament champion, ${label||'the winner'}!`)}
  else if(type==='match'){stopMusic();fx('match');speak(`${label||'Player'} wins the match!`)}
  else if(type==='one80'){fx('one80');speak('One hundred and eighty!')}
  else if(type==='leg'||type==='set'){fx(type);speak(`${label||'Player'} wins the ${type}!`)}
@@ -126,7 +126,7 @@ function watchRecord(record){
  if(unlocked){if(musicKey)startTheme(musicKey);else stopMusic()}
  else watchLastMode=musicKey;
  const event=g?.audioEvent;
- if(event?.id&&event.id!==watchLastCue){watchLastCue=event.id;if(unlocked)cue(event.type,event.label)}
+ if(event?.id&&event.id!==watchLastCue){watchLastCue=event.id;if(unlocked && Date.now()-(event.at||0)<12000)cue(event.type,event.label)}
 }
 function showEnableButton(){
  if(!viewing)return;
@@ -159,12 +159,12 @@ function managerHTML(){
 }
 function mountManager(){
  if(viewing||document.querySelector('#darthsAudioManager'))return;
- const settingsPage=document.querySelector('#settings');if(!settingsPage)return;
+ const settingsPage=document.querySelector('#settings');if(!settingsPage){console.warn('DARTHS: Settings tab missing; audio manager cannot mount');return;}
  const block=document.createElement('div');block.innerHTML=managerHTML();settingsPage.insertBefore(block.firstElementChild,settingsPage.querySelector('.legal-settings'));
  const root=document.querySelector('#darthsAudioManager');root.querySelector('#audioOutput').value=settings.output;
  root.addEventListener('change',async e=>{
   const d=e.target;
-  if(d.dataset.audioFlag){settings[d.dataset.audioFlag]=d.checked;persist()}
+  if(d.dataset.audioFlag){settings[d.dataset.audioFlag]=d.checked;persist();if(d.dataset.audioFlag==='music'&&!d.checked)stopMusic()}
   if(d.dataset.audioSource){get(d.dataset.audioSource).source=d.value;persist();root.querySelector(`[data-audio-source="${d.dataset.audioSource}"]`).closest('details').querySelector('summary small').textContent=d.value==='builtin'?'Built-in DARTHS':d.value==='custom'?'Custom audio':'Off'}
   if(d.dataset.audioLoop){get(d.dataset.audioLoop).loop=d.checked;persist()}
   if(d.dataset.audioFile&&d.files?.[0]){const f=d.files[0];if(f.size>15*1024*1024){notify('Please select an audio file smaller than 15 MB');return}try{await saveFile(d.dataset.audioFile,f);get(d.dataset.audioFile).source='custom';persist();root.querySelector(`[data-audio-source="${d.dataset.audioFile}"]`).value='custom';notify('Audio saved locally. Add a hosted URL for spectators.')}catch(err){notify('Could not save audio: '+err.message)}}
@@ -174,7 +174,7 @@ function mountManager(){
   if(d.id==='audioMaster'){settings.master=Number(d.value);root.querySelector('#audioVolumeLabel').textContent=d.value+'%';persist();if(ctx)master.gain.setTargetAtTime(settings.master/100,ctx.currentTime,.04)}
   if(d.dataset.audioVolume){get(d.dataset.audioVolume).volume=Number(d.value);root.querySelector(`[data-audio-value="${d.dataset.audioVolume}"]`).textContent=d.value+'%';persist()}
   if(d.dataset.audioUrl){const url=d.value.trim();get(d.dataset.audioUrl).url=/^https:\/\//.test(url)?url:'';persist()}
-  if(d.id==='audioOutput'){settings.output=d.value;persist()}
+  if(d.id==='audioOutput'){settings.output=d.value;persist();if(d.value==='spectator')stopMusic()}
  });
  root.addEventListener('click',async e=>{
   const preview=e.target.closest('[data-audio-preview]');if(preview){await unlock();const id=preview.dataset.audioPreview;if(scales[id])startTheme(id);else cue(id);return}
@@ -182,6 +182,7 @@ function mountManager(){
  });
 }
 if(!viewing)document.addEventListener('pointerdown',()=>{unlock().catch(()=>{})},{once:true,capture:true});
-document.addEventListener('DOMContentLoaded',()=>{mountManager();if(viewing){let attempts=0;const timer=setInterval(()=>{showEnableButton();if(document.querySelector('#darthsEnableAudio')||++attempts>30)clearInterval(timer)},400)}});
+function initAudioUI(){try{mountManager()}catch(err){console.error('DARTHS audio settings failed to initialize:',err)}if(viewing){let attempts=0;const timer=setInterval(()=>{showEnableButton();if(document.querySelector('#darthsEnableAudio')||++attempts>30)clearInterval(timer)},400)}}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAudioUI,{once:true});else initAudioUI();
 window.DARTHS_AUDIO={unlock,fx,speak,cue,startTheme,stopMusic,watchRecord,broadcastSettings,get settings(){return settings},isUnlocked:()=>unlocked,watchEnable:showEnableButton};
 })();
