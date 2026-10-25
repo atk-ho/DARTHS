@@ -49,15 +49,47 @@
 .darths-feature-panel:has(.tour-bracket-scroll){width:min(1100px,100%)}
 @media(max-width:600px){.darths-feature-modal{padding:6px}.darths-feature-panel:has(.tour-bracket-scroll){padding:10px;max-height:96dvh}.tour-bracket-scroll{max-height:56dvh}.tour-watch-side{padding:10px}}
 
-/* Spectator bracket uses the Host's exact card and connector geometry. */
-body:has(.watch-shell) .tour-watch-shell{width:100%;min-width:0;min-height:0;flex:1;display:flex;flex-direction:column;background:radial-gradient(ellipse at 45% 5%,#0d2c4e,#061628 72%);overflow:hidden}
-body:has(.watch-shell) .tour-spectator-bracket{display:flex;flex-direction:column;min-width:0;min-height:0;flex:1}
-body:has(.watch-shell) .tour-spectator-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 0 10px}
-body:has(.watch-shell) .tour-spectator-heading h2{font-size:clamp(16px,2.3vw,28px);letter-spacing:.075em;margin:0}
-body:has(.watch-shell) .tour-spectator-heading span{color:#49d8ae;font-size:11px;font-weight:800;letter-spacing:.1em}
-body:has(.watch-shell) .tour-spectator-scroll{flex:1;min-height:200px;max-height:calc(100dvh - 190px);padding:12px;scroll-snap-type:none;touch-action:pan-x pan-y}
-body:has(.watch-shell) .tour-spectator-scroll .tour-node{cursor:default}
-body:has(.watch-shell) .tour-spectator-scroll .tour-node:hover{transform:none}
-@media(max-width:700px){body:has(.watch-shell) .tour-watch-shell{padding:10px}body:has(.watch-shell) .tour-watch-heading{padding-bottom:9px;margin-bottom:10px}body:has(.watch-shell) .tour-spectator-heading{margin-bottom:5px}body:has(.watch-shell) .tour-spectator-scroll{max-height:calc(100dvh - 145px)}}
-@media(max-height:480px) and (orientation:landscape){body:has(.watch-shell) .tour-watch-shell{padding:7px}body:has(.watch-shell) .tour-watch-heading{padding-bottom:5px;margin-bottom:5px}body:has(.watch-shell) .tour-spectator-heading{margin:0}body:has(.watch-shell) .tour-spectator-scroll{max-height:calc(100dvh - 110px)}}
-@media(prefers-reduced-motion:reduce){body:has(.watch-shell) .tour-line-winner{animation:none}}
+/* FINAL MOBILE-FIRST TOURNAMENT PAGE */
+#roster:has(.tour-page:not(.hidden)) > .panel:first-child{display:none!important}
+.tour-page{width:100%;max-width:100%;min-width:0;animation:tourAppear .25s ease-out}
+.tour-page-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.tour-page-top button{min-height:42px}
+.tour-broadcast-indicator{border-radius:99px;padding:8px 11px;color:#3ef2a9;background:#0a3a35;border:1px solid #218e70;font-weight:800;font-size:11px}
+.tour-broadcast-indicator.is-offline{background:#17283c;color:#b2c6d7;border-color:#37546f}
+.tour-page-layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(230px,290px);gap:14px;align-items:start}
+.tour-page-main,.tour-control-panel{min-width:0;background:#0b2036;border:1px solid #285780;border-radius:15px;padding:14px}
+.tour-page-main>h3,.tour-control-panel>h3{margin:0 0 12px}
+.tour-control-panel{position:sticky;top:12px;display:flex;flex-direction:column;gap:9px}
+.tour-control-panel button{min-height:42px}
+.tour-current-display{background:#102d4a;border:1px solid #266392;border-radius:12px;padding:13px;display:flex;flex-direction:column;gap:5px}
+.tour-current-display small{font-size:10px;color:#8cb8dd;letter-spacing:.1em}
+.tour-current-display strong{font-size:clamp(15px,2vw,20px)}
+.tour-current-display span,.tour-control-caption{font-size:11px;color:#aacde9}
+.tour-screen-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.tour-screen-grid button{font-size:12px;white-space:normal;overflow-wrap:anywhere;padding:8px 4px}
+.tour-screen-grid .tour-active-screen{border-color:#37c5ff!important;box-shadow:0 0 12px #129fff77;background:#124b83!important;color:#fff}
+.tour-control-panel select{max-width:100%}
+.tour-timer-control{display:flex;flex-direction:column;gap:8px;border-top:1px solid #31516c;padding-top:12px}
+.tour-timer-control>div{display:flex;align-items:center;justify-content:space-between;gap:7px}
+.tour-timer-control>div button{width:46px;font-size:21px}
+.tour-timer-control small{color:#a8c9e4}
+#tourHostClock{font-size:26px;text-align:center;font-variant-numeric:tabular-nums}
+.tour-match-detail{margin-top:15px;background:#0d2b49;border:1px solid #3286ba;border-radius:13px;padding:14px;animation:tourAppear .25s ease}
+.tour-panel-title{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.tour-panel-title h3{margin:0}
+.tour-versus{display:flex;align-items:center;justify-content:space-around;gap:9px;padding:15px 6px;background:#102f50;border-radius:10px;margin:12px 0}
+.tour-versus strong{flex:1;min-width:0;text-align:center;overflow-wrap:anywhere}
+.tour-versus span{font-size:12px;color:#8db9e0}
+.tour-detail-buttons{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.tour-detail-buttons button{min-height:46px;white-space:normal}
+.tour-stat-preview h3{text-align:center}
+.tour-spectator-bracket{min-width:0;display:flex;flex-direction:column;flex:1}
+.tour-spectator-bracket>h2{font-size:clamp(17px,2.4vw,30px);text-align:center;margin:4px 0 14px}
+.tour-spectator-scroll{min-height:220px;max-height:calc(100dvh - 165px);flex:1}
+.tour-spectator-scroll .tour-node{cursor:default}
+.tour-spectator-scroll .tour-node:hover{transform:none}
+.tour-screen-timer{font-size:clamp(54px,12vw,116px);font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 0 24px #28b9ff99}
+@media(max-width:850px){.tour-page-layout{grid-template-columns:minmax(0,1fr)}.tour-control-panel{position:static}.tour-screen-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.tour-page-main,.tour-control-panel{padding:10px}.tour-page-top{align-items:flex-start}.tour-broadcast-indicator{font-size:10px}.tour-screen-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tour-detail-buttons{grid-template-columns:1fr}.tour-page .tour-bracket-scroll{max-height:52dvh}.tour-hero{flex-wrap:wrap}}
+@media(max-height:500px) and (orientation:landscape){.tour-page-layout{grid-template-columns:minmax(0,1fr) minmax(210px,34%)}.tour-control-panel{position:static}.tour-page .tour-bracket-scroll{max-height:66dvh}.tour-screen-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tour-watch-pause{min-height:55vh}.tour-watch-intro{min-height:50vh}.tour-spectator-scroll{max-height:calc(100dvh - 110px)}}
+@media(prefers-reduced-motion:reduce){.tour-page,.tour-match-detail{animation:none}}
