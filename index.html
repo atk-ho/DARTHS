@@ -409,8 +409,10 @@ function openBreakDialog(){
 db.tournaments ||= [];db.rosters ||= [];
 function makeTournament(name,ids,config){
  const size=2**Math.ceil(Math.log2(ids.length));
- const slots=ids.map(id=>({id,label:nameOfCompetitor(id)}));
- while(slots.length<size)slots.push(null);
+ const entrants=ids.map(id=>({id,label:nameOfCompetitor(id)}));
+ const slots=Array(size).fill(null),playCount=2*(ids.length-size/2);
+ for(let i=0;i<playCount;i++)slots[i]=entrants[ids.length-playCount+i];
+ for(let i=0;i<ids.length-playCount;i++)slots[playCount+i*2]=entrants[i];
  const rounds=[];let count=size;
  while(count>=2){rounds.push(Array.from({length:count/2},(_,i)=>({id:`r${rounds.length}m${i}`,a:null,b:null,winner:null,status:'pending'})));count/=2}
  rounds[0].forEach((m,i)=>{m.a=slots[i*2];m.b=slots[i*2+1]});
@@ -446,8 +448,38 @@ function tourRandomize(t,balanced){
  }else{
    for(let i=slots.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slots[i],slots[j]]=[slots[j],slots[i]]}
  }
- while(slots.length<t.rounds[0].length*2)slots.push(null);
- rebuildFirstRound(t,slots);window.DARTHS_SYNC?.updateTournament?.(t);showTournament(t.id);
+ const size=t.rounds[0].length*2,playCount=2*(slots.length-size/2),seeded=Array(size).fill(null);
+ for(let i=0;i<playCount;i++)seeded[i]=slots[slots.length-playCount+i];
+ for(let i=0;i<slots.length-playCount;i++)seeded[playCount+i*2]=slots[i];
+ delete t.bullseyeOrder;
+ rebuildFirstRound(t,seeded);window.DARTHS_SYNC?.updateTournament?.(t);showTournament(t.id);
+}
+// Bullseye qualifier: nearest dart earns highest seed. Only actual 1v1 matches count as wins.
+function tourBullseye(t){
+ if(tourLocked(t))return toast('Qualifier is locked after tournament play begins');
+ const entrants=tourPlayers(t);
+ const previous=t.bullseyeOrder||entrants.map(c=>c.id);
+ const sorted=[...entrants].sort((a,b)=>previous.indexOf(a.id)-previous.indexOf(b.id));
+ const rows=sorted.map((c,i)=>`<div class="darths-match-row"><span>${esc(c.label)}</span><select class="tour-bull-rank" data-id="${c.id}" aria-label="Bullseye rank for ${esc(c.label)}">${entrants.map((_,j)=>`<option value="${j+1}" ${j===i?'selected':''}>${j+1}</option>`).join('')}</select></div>`).join('');
+ openFeature('🎯 Bullseye Qualifier',`<p class="muted">Each player throws one dart. Rank from <b>1 (closest)</b> to <b>${entrants.length} (farthest)</b>. Re-throw ties. The closest players receive the BYEs; the farthest players play the opening match.</p>${rows}<p class="muted">The bracket is locked once the first match begins. Qualifier darts do not affect match statistics.</p>`,[
+ {label:'Back',click:()=>showTournament(t.id)},
+ {label:'Apply BYEs & Matchups',primary:true,click:()=>{
+  const picks=[...document.querySelectorAll('.tour-bull-rank')].map(el=>({id:Number(el.dataset.id),rank:Number(el.value)}));
+  if(new Set(picks.map(x=>x.rank)).size!==entrants.length)return toast('Give every player a unique rank. Re-throw tied darts.');
+  picks.sort((a,b)=>a.rank-b.rank);
+  const ranked=picks.map(x=>entrants.find(c=>Number(c.id)===x.id));
+  const size=t.rounds[0].length*2;
+  // Place the lowest-ranked competitors together in the first available match.
+  // All remaining competitors receive opening-round byes. No fake match wins are recorded.
+  const slots=Array(size).fill(null),playCount=2*(entrants.length-size/2);
+  for(let i=0;i<playCount;i++)slots[i]=ranked[ranked.length-playCount+i];
+  for(let i=0;i<ranked.length-playCount;i++)slots[playCount+i*2]=ranked[i];
+  t.bullseyeOrder=ranked.map(c=>c.id);
+  rebuildFirstRound(t,slots);
+  window.DARTHS_SYNC?.updateTournament?.(t);
+  showTournament(t.id);
+  toast('Bullseye qualifier applied');
+ }}]);
 }
 function tourSwap(t,slotA,slotB){
  if(tourLocked(t))return toast('Matchups are locked');
@@ -493,22 +525,58 @@ $('newTournament').onclick=()=>{
  {label:'Cancel',click:closeFeature},{label:'Create Tournament',primary:true,click:()=>{const ids=[...document.querySelectorAll('.tour-player:checked')].map(el=>Number(el.value));if(ids.length<2)return toast('Select at least 2 players');const sets=Number($('tourSets').value),legs=Number($('tourLegs').value);if(sets<1||sets>21||legs<1||legs>21)return toast('Sets and legs must be 1–21');const t=makeTournament($('tourName').value.trim()||'Championship',ids,{points:Number($('tourPoints').value),sets,legs,format:$('tourFormat').value});closeFeature();renderRoster();showTournament(t.id);tourAskLive(t)}}]);
  $('tourRoster').onchange=()=>{const r=db.rosters.find(x=>x.id===$('tourRoster').value);document.querySelectorAll('.tour-player').forEach(el=>el.checked=!r||r.ids.includes(Number(el.value)))};
 };
+function tourBracketMarkup(t, spectator=false){
+ const rounds=t.rounds, width=226, gap=56, step=104, firstCount=rounds[0].length;
+ const height=Math.max(190,firstCount*step+54);
+ const center=(r,i)=>step*(Math.pow(2,r)*(i+.5)) + 16;
+ const lines=[];
+ for(let r=0;r<rounds.length-1;r++)for(let i=0;i<rounds[r].length;i++){
+   const m=rounds[r][i],next=rounds[r+1][Math.floor(i/2)];
+   const x1=r*(width+gap)+width+12,x2=(r+1)*(width+gap)-8;
+   const y1=center(r,i),y2=center(r+1,Math.floor(i/2));
+   const color=m.winner?'#2ce8ad':'#517a9f';
+   lines.push(`<path d="M${x1} ${y1} H${x1+gap/2} V${y2} H${x2}" stroke="${color}" class="${m.winner?'tour-line-winner':''}" />`);
+ }
+ const cards=rounds.map((round,r)=>round.map((m,i)=>{
+  const top=center(r,i)-37,left=r*(width+gap)+12;
+  const completed=!!m.winner,ready=!!m.a&&!!m.b&&!completed;
+  const person=(c)=>`<span class="tour-node-person ${completed&&m.winner?.id===c?.id?'tour-node-victor':''}">${c?esc(c.label):'To be determined'}${completed&&m.winner?.id===c?.id?' ✓':''}</span>`;
+  return `<button type="button" class="tour-node ${completed?'tour-node-done':''} ${ready?'tour-node-ready':''}" style="left:${left}px;top:${top}px;width:${width}px" data-tour-match="${r}:${i}" aria-label="${esc(m.a?.label||'TBD')} versus ${esc(m.b?.label||'TBD')}"><small>${r===rounds.length-1?'FINAL':`ROUND ${r+1}`} · M${i+1} ${m.status==='bye'?'· BYE':completed?'· FINISHED':ready?'· READY':'· WAITING'}</small>${person(m.a)}${person(m.b)}${m.score?`<small>${esc(m.score)}</small>`:''}</button>`;
+ }).join('')).join('');
+ return `<div class="tour-bracket-guide">Swipe horizontally to explore rounds · Tap a match to view details</div><div class="tour-bracket-scroll" tabindex="0" aria-label="Tournament bracket, scroll horizontally"><div class="tour-bracket-canvas" style="width:${rounds.length*(width+gap)+20}px;height:${height}px"><svg class="tour-bracket-lines" viewBox="0 0 ${rounds.length*(width+gap)+20} ${height}" aria-hidden="true">${lines.join('')}</svg>${cards}</div></div>`;
+}
+function tourMatchDetails(t,r,i){
+ const m=t.rounds[r]?.[i];if(!m)return;
+ const ready=!!m.a&&!!m.b&&!m.winner;
+ const origin=r?`Winner of Round ${r}, Match ${i*2+1} / ${i*2+2}`:'Opening-round seed / Bullseye BYE';
+ openFeature(`Match ${r+1}.${i+1}`,`<div class="tour-detail"><p class="muted">${esc(origin)}</p><h2>${esc(m.a?.label||'Waiting for player')} <span>VS</span> ${esc(m.b?.label||'Waiting for player')}</h2><p>${m.winner?`Winner: ${esc(m.winner.label)} · ${esc(m.score||'Completed')}`:ready?'Ready to play':m.status==='bye'?'Automatic BYE — no match played':'Waiting for previous match'}</p></div>`,[
+ {label:'Back to Bracket',click:()=>showTournament(t.id)},...(ready?[{label:'Start Match',primary:true,click:()=>startTournamentMatch(t.id,r,i)}]:[])]);
+}
 function showTournament(id){
  const t=db.tournaments.find(x=>x.id===id);if(!t)return;
  const locked=tourLocked(t),slots=t.rounds[0].flatMap(m=>[m.a,m.b]);
- const tools=locked?'<p class="muted">🔒 Matchups locked because tournament play has started.</p>':`<div class="tour-seeding"><h3>Round 1 Matchups</h3><div class="actions"><button id="tourRandom">🎲 Random</button><button id="tourBalance" class="primary">⚖ Stats-balanced</button></div><p class="muted">Balanced pairing uses saved 3-dart averages; players without history are not assumed weak.</p><label>Swap player</label><select id="tourSwapA">${slots.map((c,i)=>c?`<option value="${i}">${esc(c.label)} · Slot ${i+1}</option>`:'').join('')}</select><label>With player</label><select id="tourSwapB">${slots.map((c,i)=>c?`<option value="${i}" ${i===1?'selected':''}>${esc(c.label)} · Slot ${i+1}</option>`:'').join('')}</select><button id="tourSwap" class="primary">Swap Players</button></div>`;
- const body=`<h3>🏆 ${esc(t.name)}</h3>${tools}<div class="tour-bracket">${t.rounds.map((round,r)=>`<div class="tour-round"><h3>${r===t.rounds.length-1?'Final':`Round ${r+1}`}</h3>${round.map((m,i)=>`<div class="tour-match"><div>${m.a?`<button class="tour-player-link" data-tour-player="${m.a.id}">${esc(m.a.label)}</button>`:'TBD'}</div><div class="tour-vs">vs</div><div>${m.b?`<button class="tour-player-link" data-tour-player="${m.b.id}">${esc(m.b.label)}</button>`:'TBD'}</div>${m.winner?`<small>✓ ${esc(m.winner.label)} ${esc(m.score||'')}</small>`:m.a&&m.b?`<button data-match-start="${r}:${i}" class="primary">Start Match</button>`:'<small>Waiting / Bye</small>'}</div>`).join('')}</div>`).join('')}</div>${t.champion?`<h2>🏆 CHAMPION: ${esc(t.champion.label)}</h2>`:''}`;
- openFeature('Tournament Bracket & Matches',body,[{label:'Go Live',click:()=>tourGoLive(t)},{label:'Close',click:closeFeature}]);
- document.querySelectorAll('[data-match-start]').forEach(b=>b.onclick=()=>{const [r,i]=b.dataset.matchStart.split(':').map(Number);startTournamentMatch(t.id,r,i)});
- document.querySelectorAll('[data-tour-player]').forEach(b=>b.onclick=()=>{const c=tourPlayers(t).find(c=>String(c.id)===b.dataset.tourPlayer);if(c)openFeature('Player Statistics',tourStatCard(c),[{label:'Back to Bracket',click:()=>showTournament(t.id)}])});
- if(!locked){$('tourRandom').onclick=()=>tourRandomize(t,false);$('tourBalance').onclick=()=>tourRandomize(t,true);$('tourSwap').onclick=()=>tourSwap(t,Number($('tourSwapA').value),Number($('tourSwapB').value))}
+ const tools=locked?'<p class="muted">🔒 Matchups locked because tournament play has started.</p>':`<details class="tour-seeding"><summary>⚙ Edit Bracket / Bullseye Qualifier</summary><div class="actions"><button id="tourBullseye">🎯 Bullseye BYEs</button><button id="tourRandom">🎲 Random</button><button id="tourBalance" class="primary">⚖ Stats-balanced</button></div><label>Swap player</label><select id="tourSwapA">${slots.map((c,i)=>c?`<option value="${i}">${esc(c.label)} · Slot ${i+1}</option>`:'').join('')}</select><label>With player</label><select id="tourSwapB">${slots.map((c,i)=>c?`<option value="${i}" ${i===1?'selected':''}>${esc(c.label)} · Slot ${i+1}</option>`:'').join('')}</select><button id="tourSwap" class="primary">Swap Players</button></details>`;
+ const body=`<div class="tour-hero"><div><small>TOURNAMENT CONTROL</small><h2>🏆 ${esc(t.name)}</h2><p>${tourPlayers(t).length} players · Single elimination · ${t.config.points} darts</p></div><span class="tour-status">${t.champion?'Finished':locked?'In progress':'Ready'}</span></div><div class="tour-host-actions"><button id="tourGoLive" class="primary">📡 Go Live</button><button id="tourDisplayIntro">✨ Welcome Screen</button><button id="tourDisplayBracket">📺 Display Bracket</button><button id="tourCopyLink">🔗 Copy Spectator Link</button></div>${tools}${tourBracketMarkup(t)}${t.champion?`<h2>🏆 CHAMPION: ${esc(t.champion.label)}</h2>`:''}`;
+ openFeature('Tournament Bracket & Matches',body,[{label:'Close',click:closeFeature}]);
+ document.querySelectorAll('[data-tour-match]').forEach(b=>b.onclick=()=>{const [r,i]=b.dataset.tourMatch.split(':').map(Number);tourMatchDetails(t,r,i)});
+ $('tourGoLive').onclick=()=>tourGoLive(t);
+ $('tourDisplayIntro').onclick=()=>tourDisplay(t,'intro');
+ $('tourDisplayBracket').onclick=()=>tourDisplay(t,'bracket');
+ $('tourCopyLink').onclick=async()=>{const link=window.DARTHS_SYNC?.getTournamentLink?.(t.id);if(!link)return toast('Go Live first to create a link');try{await navigator.clipboard.writeText(link);toast('Spectator link copied')}catch{await window.DARTHS_DIALOG({title:'Spectator Link',message:link,confirm:'Close',alert:true})}};
+ if(!locked){$('tourBullseye').onclick=()=>tourBullseye(t);$('tourRandom').onclick=()=>tourRandomize(t,false);$('tourBalance').onclick=()=>tourRandomize(t,true);$('tourSwap').onclick=()=>tourSwap(t,Number($('tourSwapA').value),Number($('tourSwapB').value))}
 }
+async function tourDisplay(t,mode){
+ if(!window.DARTHS_SYNC?.setTournamentView)return toast('Firebase live sharing unavailable');
+ try{await window.DARTHS_SYNC.setTournamentView(t,mode);toast(mode==='intro'?'Welcome screen displayed':'Bracket displayed on spectator screens')}catch(e){toast(e.message||'Unable to update spectator display')}
+}
+
 async function startTournamentMatch(id,r,i){
  const t=db.tournaments.find(x=>x.id===id),m=t?.rounds[r]?.[i];if(!m?.a||!m?.b||m.winner)return toast('Match not available');
+ if(!await window.DARTHS_DIALOG({title:'Start Tournament Match?',message:`${m.a.label} vs ${m.b.label}. This will open the existing Host scoreboard.`,confirm:'Start Match',cancel:'Back to Bracket'}))return;
  if(db.game&&!db.game.finished&&!await window.DARTHS_DIALOG({title:'Replace Current Match?',message:'Your unfinished match will be replaced by the tournament match.',confirm:'Replace Match',cancel:'Keep Playing'}))return;
  t.started=true;const cfg=t.config,participants=[m.a,m.b].map(c=>({members:[c.id],label:c.label,remaining:cfg.points,entered:true,sets:0,legs:0,last:[],stats:statDefaults(),memberTurn:0}));
  db.game={points:cfg.points,sets:cfg.sets,legs:cfg.legs,format:cfg.format,mode:'ffa',checkin:'straight',checkout:'double',current:0,round:1,setNumber:1,legNumber:1,legSerial:0,turn:[],participants,tournamentId:id,tournamentMatchId:`${r}:${i}`,tournamentName:t.name,tournamentBracket:t.rounds,tournamentPlayers:tourPlayers(t).map(c=>({...c,stats:tourStats(c.id)}))};
- window.DARTHS_CAPTURE_LAYOUTS?.(db.game);snapshots=[];closeFeature();switchTab('home');save();renderGame();toast('Tournament match started');
+ window.DARTHS_CAPTURE_LAYOUTS?.(db.game);snapshots=[];closeFeature();switchTab('home');save();renderGame();window.DARTHS_SYNC?.setTournamentView?.(t,'match',db.game).catch(e=>toast(e.message));toast('Tournament match started');
 }
 function completeTournamentMatch(g,winner){
  const t=db.tournaments.find(x=>x.id===g.tournamentId);if(!t)return;
@@ -516,7 +584,7 @@ function completeTournamentMatch(g,winner){
  const winning=m.a.label===winner.label?m.a:m.b;
  m.winner=winning;m.status='complete';m.score=`${g.participants[0].sets}-${g.participants[1].sets}`;advanceWinner(t,r,i,winning);g.tournamentBracket=t.rounds;
  if(t.champion){g.championName=winning.label;g.tournamentName=t.name;setTimeout(()=>championCelebration(winning.label,t.name),350)}
- save();
+ save();window.DARTHS_SYNC?.setTournamentView?.(t,'bracket',null).catch(console.warn);
 }
 function championCelebration(label,tournament){
  const confetti=$('championConfetti');confetti.innerHTML=Array.from({length:65},(_,i)=>`<i style="left:${(i*37)%100}%;background:${['#ffdc29','#17a5ff','#fa498e','#29e8a0'][i%4]};animation-delay:${(i%30)*-.13}s;animation-duration:${2.8+i%4*.5}s"></i>`).join('');confetti.classList.remove('hidden');setTimeout(()=>confetti.classList.add('hidden'),9000);

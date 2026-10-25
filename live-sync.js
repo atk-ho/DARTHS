@@ -31,6 +31,8 @@ if (!configured) {
     let room = null;
     let currentGame = null;
     let currentTournament = null;
+    let tournamentMode = 'intro';
+    let tournamentLiveId = null;
     let generation = 0;
     let chain = Promise.resolve();
     let lastError = null;
@@ -48,6 +50,7 @@ if (!configured) {
           owner: uid,
           updatedAt: Date.now(),
           game: currentGame ? copy(currentGame) : null,
+          viewMode: currentTournament ? tournamentMode : 'match',
           tournament: currentTournament ? copy(currentTournament) : (currentGame?.tournamentId ? {id:currentGame.tournamentId,name:currentGame.tournamentName,rounds:currentGame.tournamentBracket,players:currentGame.tournamentPlayers||[]} : null)
         };
         await set(roomRef(target), record);
@@ -84,10 +87,21 @@ if (!configured) {
       },
       async shareTournament(t,game=null) {
         currentTournament={id:t.id,name:t.name,rounds:t.rounds,players:t.rounds[0].flatMap(m=>[m.a,m.b]).filter(Boolean).map(c=>({...c,stats:window.DARTHS_TOUR_STATS?.(c.id)||{}}))};
+        tournamentMode='intro';tournamentLiveId=t.id;
         currentGame=game?.tournamentId===t.id?game:null;
         if(!room){room=newRoom();generation++}
         await publishLatest();
         return new URL('./?watch='+room,location.href).href;
+      },
+      getTournamentLink(id){return room&&tournamentLiveId===id?new URL('./?watch='+room,location.href).href:null},
+      async setTournamentView(t,mode,game=null){
+        if(!room||!currentTournament||currentTournament.id!==t.id)throw new Error('Go Live first to create the spectator session');
+        if(!['intro','bracket','match','stats','break'].includes(mode))throw new Error('Invalid spectator view');
+        currentTournament.rounds=t.rounds;
+        tournamentMode=mode;
+        if(mode==='match'&&game)currentGame=game;
+        if(mode==='bracket'||mode==='intro')currentGame=null;
+        await publishLatest();
       },
       updateTournament(t){
         if(!room||!currentTournament||currentTournament.id!==t.id)return Promise.resolve();
@@ -99,6 +113,7 @@ if (!configured) {
         room = null;
         currentGame = null;
         currentTournament = null;
+        tournamentLiveId = null;
         generation++;
         await chain;
         if (old) {
@@ -132,16 +147,16 @@ function indicator(g,p,i){
       let tourRecord=null,tourSelected=null,tourTimer=null;
       function tourCountdown(ends){if(!ends)return 'No timer';const seconds=Math.max(0,Math.ceil((ends-Date.now())/1000));return `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`}
       function renderTourView(record){
-        tourRecord=record;const g=record.game,b=g?.breakTime||{},t=record.tournament||{name:g?.tournamentName||'DARTHS',rounds:g?.tournamentBracket||[],players:g?.tournamentPlayers||[]};
-        const mode=b.active?b.template:'bracket',players=t.players||[],selected=players.find(p=>String(p.id)===String(tourSelected??b.playerId))||players[0];
+        lastSignature='';tourRecord=record;const g=record.game,b=g?.breakTime||{},t=record.tournament||{name:g?.tournamentName||'DARTHS',rounds:g?.tournamentBracket||[],players:g?.tournamentPlayers||[]};
+        const mode=b.active?b.template:(record.viewMode||'intro'),players=t.players||[],selected=players.find(p=>String(p.id)===String(tourSelected??b.playerId))||players[0];
         const playerStats=p=>{if(!p)return '<p>Select a player.</p>';const s=p.stats||{};return `<div class="tour-watch-stats"><h2>${escapeHTML(p.label)}</h2><div class="tour-watch-statgrid"><div><b>${s.games??'—'}</b><small>Recorded games</small></div><div><b>${typeof s.average==='number'?s.average.toFixed(2):'—'}</b><small>3-dart average</small></div><div><b>${s.oneEighties??'—'}</b><small>180s</small></div><div><b>${s.high??'—'}</b><small>Highest turn</small></div></div></div>`};
-        const bracket=`<div class="tour-watch-bracket">${(t.rounds||[]).map((round,r)=>`<div class="tour-watch-round"><h3>${r===t.rounds.length-1?'Final':`Round ${r+1}`}</h3>${round.map(m=>`<div class="tour-watch-match">${[m.a,m.b].map(p=>p?`<button class="tour-watch-person" data-tour-watch-player="${escapeHTML(p.id)}">${escapeHTML(p.label)}${m.winner?.id===p.id?' ✓':''}</button>`:'<span>TBD</span>').join('')}<small>${escapeHTML(m.score||'')}</small></div>`).join('')}</div>`).join('')}</div>`;
-        content.innerHTML=`<div class="tour-watch-shell"><div class="tour-watch-heading"><h1>🏆 ${escapeHTML(t.name)}</h1>${b.active?`<div class="tour-watch-countdown">☕ BREAK TIME <strong id="tourTimer">${tourCountdown(b.endsAt)}</strong></div>`:''}</div>${mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>☕</div><h2>${mode==='commercial'?'Commercial Break':'Break Time'}</h2><p>${escapeHTML(b.message||'Players are taking a break.')}</p></div>`:mode==='stats'?`<div class="tour-watch-back">Player Statistics</div>${playerStats(selected)}`:`<div class="tour-watch-columns">${bracket}<aside class="tour-watch-side"><h2>Player Statistics</h2>${playerStats(selected)}<p>Tap a player in the bracket to show their statistics.</p></aside></div>`}</div>`;
+        const bracket=`<div class="tour-watch-bracket">${(t.rounds||[]).map((round,r)=>`<div class="tour-watch-round"><h3>${r===t.rounds.length-1?'FINAL':`ROUND ${r+1}`}</h3>${round.map((m,i)=>`<div class="tour-watch-match ${m.winner?'is-complete':''}"><small>M${i+1} ${m.status==='bye'?'· BYE':m.winner?'· WINNER':''}</small>${[m.a,m.b].map(p=>p?`<button class="tour-watch-person ${m.winner?.id===p.id?'winner':''}" data-tour-watch-player="${escapeHTML(p.id)}">${escapeHTML(p.label)}${m.winner?.id===p.id?' ✓':''}</button>`:'<span class="tour-watch-person muted">TBD</span>').join('')}<small>${escapeHTML(m.score||'')}</small></div>`).join('')}</div>`).join('')}</div>`;
+        content.innerHTML=`<div class="tour-watch-shell"><div class="tour-watch-heading"><h1>🏆 ${escapeHTML(t.name)}</h1>${b.active?`<div class="tour-watch-countdown">☕ BREAK <strong id="tourTimer">${tourCountdown(b.endsAt)}</strong></div>`:'<span class="tour-live-tag">● TOURNAMENT LIVE</span>'}</div>${mode==='intro'?`<div class="tour-watch-intro"><div class="tour-intro-trophy">🏆</div><div class="tour-intro-eyebrow">WELCOME TO</div><h1>DARTHS</h1><h2>${escapeHTML(t.name)}</h2><p>${players.length} players · Single Elimination</p><span>Waiting for the Host to display the bracket</span></div>`:mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>☕</div><h2>${mode==='commercial'?'Commercial Break':'Break Time'}</h2><p>${escapeHTML(b.message||'Players are taking a break.')}</p></div>`:mode==='stats'?`<div class="tour-watch-back">Player Statistics</div>${playerStats(selected)}`:`<div class="tour-watch-columns"><div class="tour-bracket-wrap"><p class="tour-watch-hint">Swipe horizontally to follow the tournament</p>${bracket}</div><aside class="tour-watch-side"><h2>Player Statistics</h2>${playerStats(selected)}<p>Tap a player to see their statistics.</p></aside></div>`}</div>`;
         content.querySelectorAll('[data-tour-watch-player]').forEach(el=>el.onclick=()=>{tourSelected=el.dataset.tourWatchPlayer;renderTourView(tourRecord)});
         clearInterval(tourTimer);if(b.active&&b.endsAt)tourTimer=setInterval(()=>{const el=content.querySelector('#tourTimer');if(el)el.textContent=tourCountdown(b.endsAt);else clearInterval(tourTimer)},1000);
       }
       function renderRecord(record) {
-        if(record?.tournament && (!record.game || record.game.breakTime?.active)){status.textContent='● LIVE';renderTourView(record);return}
+        if(record?.tournament && (record.viewMode!=='match' || !record.game || record.game.breakTime?.active)){status.textContent='● LIVE';renderTourView(record);return}
         if (!record?.game) {
           status.textContent = 'WAITING';
           content.textContent = 'No active shared match found.';

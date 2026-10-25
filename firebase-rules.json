@@ -1,0 +1,13 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+    "liveMatches": {
+      "$roomId": {
+        ".read": true,
+        ".write": "auth != null && ((!data.exists() && newData.exists() && newData.child('owner').val() === auth.uid) || (data.exists() && data.child('owner').val() === auth.uid && (!newData.exists() || newData.child('owner').val() === auth.uid)))",
+        ".validate": "newData.hasChildren(['owner', 'updatedAt']) && newData.child('owner').isString() && newData.child('updatedAt').isNumber()"
+      }
+    }
+  }
+}
