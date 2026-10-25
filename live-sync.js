@@ -96,11 +96,12 @@ if (!configured) {
       getTournamentLink(id){return room&&tournamentLiveId===id?new URL('./?watch='+room,location.href).href:null},
       async setTournamentView(t,mode,game=null,options={}){
         if(!room||!currentTournament||currentTournament.id!==t.id)throw new Error('Go Live first to create the spectator session');
-        if(!['intro','bracket','match','stats','break','waiting'].includes(mode))throw new Error('Invalid spectator view');
+        if(!['intro','bracket','match','stats','break','waiting','upnext'].includes(mode))throw new Error('Invalid spectator view');
         currentTournament.rounds=t.rounds;
         currentTournament.players=t.rounds[0].flatMap(m=>[m.a,m.b]).filter(Boolean).map(c=>({...c,stats:window.DARTHS_TOUR_STATS?.(c.id)||{}}));
         currentTournament.displayPlayerId=options.playerId??currentTournament.displayPlayerId??null;
         currentTournament.countdownEndsAt=options.endsAt??null;
+        currentTournament.upNext=options.upNext??null;
         tournamentMode=mode;
         if(mode==='match'&&game)currentGame=game;
         if(mode!=='match' && !currentGame?.breakTime?.active)currentGame=null;
@@ -176,9 +177,13 @@ function indicator(g,p,i){
         const timer=`<strong class="tour-screen-timer" id="tourTimer">${timerEnds?tourCountdown(timerEnds):'Waiting for Host'}</strong>`;
         const oldScroll=content.querySelector('.tour-spectator-scroll'),oldX=oldScroll?.scrollLeft||0,oldY=oldScroll?.scrollTop||0;
         const title=mode==='waiting'?'NEXT MATCH':'BREAK TIME';
-        content.innerHTML=`<div class="tour-watch-shell"><div class="tour-watch-heading"><h1>🏆 ${escapeHTML(t.name)}</h1><span class="tour-live-tag">● TOURNAMENT LIVE</span></div>${mode==='intro'?`<div class="tour-watch-intro"><div class="tour-intro-trophy">🏆</div><div class="tour-intro-eyebrow">WELCOME TO</div><h1>DARTHS</h1><h2>${escapeHTML(t.name)}</h2><p>${players.length} players · Single Elimination</p><span>Waiting for the Host to display the bracket</span></div>`:mode==='waiting'||mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>${mode==='waiting'?'🎯':'☕'}</div><h2>${title}</h2>${timer}<p>${timerEnds&&timerEnds<=Date.now()?'READY FOR NEXT MATCH':mode==='waiting'?'Players, please prepare for your next match.':'We will be back shortly.'}</p></div>`:mode==='stats'?`<div class="tour-watch-back">PLAYER STATISTICS</div>${playerStats(selected)}`:`<div class="tour-spectator-bracket"><h2>TOURNAMENT BRACKET</h2>${bracket}</div>`}</div>`;
+        content.innerHTML=`<div class="tour-watch-shell"><div class="tour-watch-heading"><h1>🏆 ${escapeHTML(t.name)}</h1><span class="tour-live-tag">● TOURNAMENT LIVE</span></div>${mode==='intro'?`<div class="tour-watch-intro"><div class="tour-intro-trophy">🏆</div><div class="tour-intro-eyebrow">WELCOME TO</div><h1>DARTHS</h1><h2>${escapeHTML(t.name)}</h2><p>${players.length} players · Single Elimination</p><span>Waiting for the Host to display the bracket</span></div>`:mode==='upnext'?`<div class="tour-watch-upnext"><div class="tour-upnext-label">🎯 UP NEXT · ROUND ${t.upNext?.round||1} · MATCH ${t.upNext?.match||1}</div><div class="tour-watch-versus"><strong>${escapeHTML(t.upNext?.a||'Player A')}</strong><span>VS</span><strong>${escapeHTML(t.upNext?.b||'Player B')}</strong></div><p>MATCH STARTS WHEN THE HOST IS READY</p><strong class="tour-screen-timer" id="tourTimer">${t.upNext?.started?tourCountdown(t.upNext?.endsAt):tourCountdown(Date.now()+(t.upNext?.remainingMs||300000))}</strong><p id="tourUpNextStatus">${t.upNext?.started?(t.upNext?.endsAt?'Countdown running':'Countdown paused'):'Waiting for countdown'}</p></div>`:mode==='waiting'||mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>${mode==='waiting'?'🎯':'☕'}</div><h2>${title}</h2>${timer}<p>${timerEnds&&timerEnds<=Date.now()?'READY FOR NEXT MATCH':mode==='waiting'?'Players, please prepare for your next match.':'We will be back shortly.'}</p></div>`:mode==='stats'?`<div class="tour-watch-back">PLAYER STATISTICS</div>${playerStats(selected)}`:`<div class="tour-spectator-bracket"><h2>TOURNAMENT BRACKET</h2>${bracket}</div>`}</div>`;
         const newScroll=content.querySelector('.tour-spectator-scroll');if(newScroll){newScroll.scrollLeft=oldX;newScroll.scrollTop=oldY;}
-        clearInterval(tourTimer);if(timerEnds)tourTimer=setInterval(()=>{const el=content.querySelector('#tourTimer');if(el)el.textContent=tourCountdown(timerEnds);else clearInterval(tourTimer)},1000);
+        clearInterval(tourTimer);
+        if(mode==='upnext'){
+          const update=()=>{const el=content.querySelector('#tourTimer'),note=content.querySelector('#tourUpNextStatus');if(!el)return;const u=t.upNext||{},left=u.endsAt?Math.max(0,u.endsAt-Date.now()):u.remainingMs??300000;el.textContent=tourCountdown(Date.now()+left);if(note&&u.started&&left===0)note.textContent='READY TO START · Waiting for Host'};
+          update();tourTimer=setInterval(update,500);
+        }else if(timerEnds)tourTimer=setInterval(()=>{const el=content.querySelector('#tourTimer');if(el)el.textContent=tourCountdown(timerEnds);else clearInterval(tourTimer)},1000);
         content.querySelectorAll('[data-tour-watch-player]').forEach(el=>el.onclick=()=>{tourSelected=el.dataset.tourWatchPlayer;renderTourView(tourRecord)});
 
       }

@@ -93,3 +93,26 @@
 @media(max-width:600px){.tour-page-main,.tour-control-panel{padding:10px}.tour-page-top{align-items:flex-start}.tour-broadcast-indicator{font-size:10px}.tour-screen-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tour-detail-buttons{grid-template-columns:1fr}.tour-page .tour-bracket-scroll{max-height:52dvh}.tour-hero{flex-wrap:wrap}}
 @media(max-height:500px) and (orientation:landscape){.tour-page-layout{grid-template-columns:minmax(0,1fr) minmax(210px,34%)}.tour-control-panel{position:static}.tour-page .tour-bracket-scroll{max-height:66dvh}.tour-screen-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.tour-watch-pause{min-height:55vh}.tour-watch-intro{min-height:50vh}.tour-spectator-scroll{max-height:calc(100dvh - 110px)}}
 @media(prefers-reduced-motion:reduce){.tour-page,.tour-match-detail{animation:none}}
+
+/* Tournament match preparation: mobile-first full page */
+.tour-countdown-page{max-width:650px;margin:0 auto;padding:clamp(12px,3vw,28px);background:linear-gradient(160deg,#0c2847,#081a2e);border:1px solid #2a628d;border-radius:18px;display:flex;flex-direction:column;align-items:center;gap:13px;text-align:center;animation:tourAppear .28s ease-out}
+.tour-countdown-kicker{color:#69c7ff;font-weight:800;letter-spacing:.12em;font-size:12px}
+.tour-countdown-page h2{font-size:clamp(24px,6vw,38px);margin:0}
+.tour-countdown-versus{width:100%;margin:0;flex-wrap:wrap}
+.tour-countdown-duration{display:flex;align-items:center;justify-content:center;gap:15px;width:100%}
+.tour-countdown-duration button{min-width:52px;min-height:48px;font-size:22px}
+.tour-countdown-duration span{font-size:17px;font-weight:800;min-width:95px}
+.tour-countdown-clock{font-size:clamp(62px,16vw,110px);font-weight:900;letter-spacing:-.04em;line-height:1.2;font-variant-numeric:tabular-nums;color:#fff;text-shadow:0 0 30px #1689e688}
+.tour-countdown-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;width:100%}
+.tour-countdown-actions button{min-height:52px;padding:9px;white-space:normal;font-size:13px}
+.tour-countdown-actions #tourStartNow{grid-column:1/-1;background:#09895f;border-color:#11b787}
+.tour-end-live{background:#5d2031!important;border:1px solid #b5475e!important}
+.tour-watch-upnext{min-height:65dvh;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:15px;text-align:center;padding:clamp(15px,4vw,48px);background:radial-gradient(ellipse at center,#133f69,#06182c 70%);border-radius:20px}
+.tour-upnext-label{font-size:clamp(17px,3vw,28px);font-weight:900;color:#ffd24a;letter-spacing:.08em}
+.tour-watch-versus{display:flex;align-items:center;justify-content:space-around;gap:12px;width:min(750px,100%);background:#0d2d4d;border:1px solid #246394;border-radius:15px;padding:clamp(15px,3vw,25px)}
+.tour-watch-versus strong{font-size:clamp(17px,3.8vw,35px);min-width:0;overflow-wrap:anywhere;flex:1}
+.tour-watch-versus span{color:#9bbad6;font-weight:800}
+.tour-watch-upnext p{color:#b2d1e8;font-size:clamp(12px,2vw,16px)}
+.tour-watch-upnext #tourUpNextStatus{color:#4ee9b5;font-weight:800}
+@media(max-width:550px){.tour-countdown-page{padding:12px;gap:10px}.tour-countdown-actions{grid-template-columns:1fr 1fr}.tour-watch-versus{gap:6px}.tour-watch-upnext{padding:12px}}
+@media(max-height:480px) and (orientation:landscape){.tour-countdown-page{max-width:900px;gap:5px;padding:8px}.tour-countdown-clock{font-size:50px}.tour-countdown-page h2{font-size:22px}.tour-countdown-actions{grid-template-columns:repeat(5,minmax(0,1fr))}.tour-countdown-actions #tourStartNow{grid-column:auto}.tour-watch-upnext{min-height:80dvh;gap:5px}.tour-screen-timer{font-size:45px}}
