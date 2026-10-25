@@ -14,7 +14,7 @@ let settings;try{settings={...defaults,...JSON.parse(localStorage.getItem(KEY)||
 settings.events=settings.events||{};
 for(const [id,[label,loop]] of Object.entries(EVENTS))
  settings.events[id]={source:'builtin',loop,volume:80,...settings.events[id]};
-let ctx=null,master=null,musicBus=null,fxBus=null,themeTimer=null,themeKey='',step=0,media=null,blobUrl=null,watchLastCue='',watchLastMode='',unlocked=false,playingToken=0,customCache=new Map();
+let lastRecord=null,pendingCue=null;let ctx=null,master=null,musicBus=null,fxBus=null,themeTimer=null,themeKey='',step=0,media=null,blobUrl=null,watchLastCue='',watchLastMode='',unlocked=false,playingToken=0,customCache=new Map();
 const get=(id)=>settings.events[id]||{source:'builtin',loop:false,volume:80};
 function persist(){localStorage.setItem(KEY,JSON.stringify(settings))}
 function enabled(kind){return (kind==='music'?settings.music:settings.effects)&&settings.master>0}
@@ -112,6 +112,7 @@ function broadcastSettings(){
 }
 function watchRecord(record){
  if(!viewing)return;
+ lastRecord=record;
  const remote=record?.tournament?.audioConfig||record?.game?.audioConfig||null;
  if(remote){
   // Spectator controls its own master volume and initial audio permission.
@@ -126,13 +127,13 @@ function watchRecord(record){
  if(unlocked){if(musicKey)startTheme(musicKey);else stopMusic()}
  else watchLastMode=musicKey;
  const event=g?.audioEvent;
- if(event?.id&&event.id!==watchLastCue){watchLastCue=event.id;if(unlocked && Date.now()-(event.at||0)<12000)cue(event.type,event.label)}
+ if(event?.id&&event.id!==watchLastCue){watchLastCue=event.id;if(Date.now()-(event.at||0)<12000){if(unlocked)cue(event.type,event.label);else pendingCue=event}}
 }
 function showEnableButton(){
  if(!viewing)return;
  const place=document.querySelector('.watch-header-tools');if(!place||document.querySelector('#darthsEnableAudio'))return;
  const b=document.createElement('button');b.id='darthsEnableAudio';b.type='button';b.textContent='🔊 Enable Audio';b.title='Tap once to enable spectator music and sound';
- b.onclick=async()=>{if(await unlock()){if(watchLastMode)startTheme(watchLastMode);b.remove()}};
+ b.onclick=async()=>{if(await unlock()){if(lastRecord)watchRecord(lastRecord);else if(watchLastMode)startTheme(watchLastMode);if(pendingCue&&Date.now()-(pendingCue.at||0)<12000){cue(pendingCue.type,pendingCue.label);pendingCue=null}b.remove()}};
  place.prepend(b);
 }
 const name=(id)=>EVENTS[id][0];
@@ -159,8 +160,8 @@ function managerHTML(){
 }
 function mountManager(){
  if(viewing||document.querySelector('#darthsAudioManager'))return;
- const settingsPage=document.querySelector('#settings');if(!settingsPage){console.warn('DARTHS: Settings tab missing; audio manager cannot mount');return;}
- const block=document.createElement('div');block.innerHTML=managerHTML();settingsPage.insertBefore(block.firstElementChild,settingsPage.querySelector('.legal-settings'));
+ const settingsPage=document.querySelector('#settings .ds-shell');if(!settingsPage)return;
+ const block=document.createElement('div');block.innerHTML=managerHTML();settingsPage.appendChild(block.firstElementChild);
  const root=document.querySelector('#darthsAudioManager');root.querySelector('#audioOutput').value=settings.output;
  root.addEventListener('change',async e=>{
   const d=e.target;
@@ -182,7 +183,7 @@ function mountManager(){
  });
 }
 if(!viewing)document.addEventListener('pointerdown',()=>{unlock().catch(()=>{})},{once:true,capture:true});
-function initAudioUI(){try{mountManager()}catch(err){console.error('DARTHS audio settings failed to initialize:',err)}if(viewing){let attempts=0;const timer=setInterval(()=>{showEnableButton();if(document.querySelector('#darthsEnableAudio')||++attempts>30)clearInterval(timer)},400)}}
+function initAudioUI(){if(viewing){let attempts=0;const timer=setInterval(()=>{showEnableButton();if(document.querySelector('#darthsEnableAudio')||++attempts>30)clearInterval(timer)},400)}}
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',initAudioUI,{once:true});else initAudioUI();
-window.DARTHS_AUDIO={unlock,fx,speak,cue,startTheme,stopMusic,watchRecord,broadcastSettings,get settings(){return settings},isUnlocked:()=>unlocked,watchEnable:showEnableButton};
+window.DARTHS_AUDIO={unlock,fx,speak,cue,startTheme,stopMusic,watchRecord,broadcastSettings,mountManager,get settings(){return settings},isUnlocked:()=>unlocked,watchEnable:showEnableButton};
 })();

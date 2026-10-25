@@ -20,3 +20,10 @@
 @keyframes darthsAudioPulse{50%{box-shadow:0 0 0 5px #1b89ec33}}
 @media(max-width:650px){.darths-audio-switches,.darths-audio-event-list{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){#darthsEnableAudio{animation:none}}
+
+/* Sound manager embedded in the Sound & Voice page */
+#settings .ds-shell>.darths-audio-manager{margin:16px 0 0;padding:13px;border:1px solid #2b557a;border-radius:12px;background:#102741;color:#e9f4ff}
+#settings .darths-audio-manager h2{font-size:17px}
+#settings .darths-audio-manager .darths-audio-event-list{grid-template-columns:repeat(2,minmax(0,1fr))}
+@media(max-width:650px){#settings .darths-audio-manager .darths-audio-event-list{grid-template-columns:1fr}}
+#darthsEnableAudio{animation:none!important}
