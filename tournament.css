@@ -1,0 +1,29 @@
+/* DARTHS Tournament enhancements; isolated from the original host scorecard. */
+.tour-list-card{background:#11263e;border:1px solid #244c73;border-radius:14px}
+.tour-list-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.tour-list-top h3{margin:0 0 5px}.tour-list-top p{margin:0 0 10px}
+.tour-status{padding:5px 10px;border-radius:999px;background:#0a4a82;color:#e6f5ff;font-size:12px;white-space:nowrap}
+.tour-seeding{background:#0b2036;border:1px solid #275079;padding:12px;border-radius:12px;margin:12px 0}
+.tour-seeding h3{margin:0 0 8px}.tour-seeding select{width:100%;margin:4px 0 9px}
+.tour-bracket{display:flex;gap:12px;overflow-x:auto;overscroll-behavior-x:contain;padding:12px 2px}
+.tour-round{flex:0 0 min(250px,80vw);min-width:190px}.tour-round h3{margin:0 0 10px;text-align:center;color:#8ec8ff}
+.tour-match{border:1px solid #2e587d;background:#0b2035;border-radius:10px;padding:10px;margin:0 0 12px;display:grid;gap:4px}
+.tour-match>div{min-height:28px}.tour-vs{color:#8eb7d9;font-size:11px;text-align:center;min-height:auto!important}
+.tour-match small{color:#7dd3fc}.tour-player-link{width:100%;text-align:left;background:#193c60;border:1px solid #32648d;border-radius:7px;padding:8px;color:#fff}
+.tour-stat-card{text-align:center}.tour-stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:12px 0}
+.tour-stat-grid>div,.tour-watch-statgrid>div{display:flex;flex-direction:column;align-items:center;gap:4px;background:#163451;padding:14px;border-radius:10px}
+.tour-stat-grid b,.tour-watch-statgrid b{font-size:23px}.tour-stat-grid small,.tour-watch-statgrid small{color:#b8d4eb}
+.tour-watch-shell{color:#f1f7ff;background:#071a2e;border:1px solid #215b88;border-radius:15px;padding:clamp(12px,2vw,25px);min-height:60vh}
+.tour-watch-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;border-bottom:1px solid #244967;padding-bottom:15px;margin-bottom:15px}
+.tour-watch-heading h1{font-size:clamp(19px,2.8vw,32px);margin:0}.tour-watch-countdown{color:#9bd0ff;font-weight:700;display:flex;align-items:center;gap:14px}
+.tour-watch-countdown strong{font-size:clamp(25px,4vw,54px);color:#fff;font-variant-numeric:tabular-nums}
+.tour-watch-columns{display:grid;grid-template-columns:minmax(0,2fr) minmax(230px,1fr);gap:15px}
+.tour-watch-bracket{display:flex;gap:12px;overflow-x:auto;padding:3px 0 10px}.tour-watch-round{flex:0 0 195px}.tour-watch-round h3{font-size:14px;text-align:center;background:#193d60;padding:12px;border-radius:9px;margin:0 0 10px}
+.tour-watch-match{display:grid;gap:4px;background:#0d2946;border:1px solid #276496;border-radius:9px;padding:8px;margin-bottom:9px}
+.tour-watch-person{background:#174064;border:1px solid #376c9c;border-radius:7px;color:#fff;text-align:left;padding:9px 10px;cursor:pointer}
+.tour-watch-match small{color:#b4d6f0}.tour-watch-side{background:#0c263f;border:1px solid #244b6f;border-radius:11px;padding:13px}
+.tour-watch-side h2{font-size:18px;margin:0 0 10px}.tour-watch-stats h2{margin:0 0 12px;text-align:center}
+.tour-watch-statgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.tour-watch-hint,.tour-watch-side p{font-size:13px;color:#9dc2e3;text-align:center}
+.tour-watch-pause{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;min-height:40vh}
+.tour-watch-pause>div{font-size:65px}.tour-watch-pause h2{font-size:clamp(30px,5vw,65px);margin:8px}.tour-watch-pause p{color:#b6d4ee}
+@media(max-width:720px){.tour-watch-columns{grid-template-columns:1fr}.tour-watch-side{order:-1}.tour-watch-heading{align-items:flex-start}.tour-watch-round{flex-basis:160px}.tour-watch-shell{padding:10px}}

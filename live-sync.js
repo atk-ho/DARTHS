@@ -7,6 +7,7 @@ const escapeHTML = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&l
 const configured = Object.values(firebaseConfig).every(x => x && !String(x).includes('PASTE_'));
 
 if (viewing) {
+  document.head.insertAdjacentHTML('beforeend','<link rel="stylesheet" href="./tournament.css?v=20261025-1">');
   document.body.innerHTML = `<main class="watch-shell"><header class="watch-header"><div class="watch-brand"><img src="./icons/icon-192.png" alt=""> DARTHS</div><span id="connection">Connecting…</span></header><div id="watchContent" class="watch-content">Loading live scores…</div></main>`;
   document.title = 'DARTHS · Live Scoreboard';
 }
@@ -29,6 +30,7 @@ if (!configured) {
     const KEY = 'darths_live_room_v6_clean';
     let room = null;
     let currentGame = null;
+    let currentTournament = null;
     let generation = 0;
     let chain = Promise.resolve();
     let lastError = null;
@@ -38,14 +40,15 @@ if (!configured) {
 
     // Serialize writes, but read the latest game at the moment each write begins.
     function publishLatest() {
-      if (!room || !currentGame) return Promise.resolve();
+      if (!room || (!currentGame && !currentTournament)) return Promise.resolve();
       const target = room, token = generation;
       const task = chain.catch(() => {}).then(async () => {
-        if (target !== room || token !== generation || !currentGame) return;
+        if (target !== room || token !== generation || (!currentGame && !currentTournament)) return;
         const record = {
           owner: uid,
           updatedAt: Date.now(),
-          game: copy(currentGame)
+          game: currentGame ? copy(currentGame) : null,
+          tournament: currentTournament ? copy(currentTournament) : (currentGame?.tournamentId ? {id:currentGame.tournamentId,name:currentGame.tournamentName,rounds:currentGame.tournamentBracket,players:currentGame.tournamentPlayers||[]} : null)
         };
         await set(roomRef(target), record);
         lastError = null;
@@ -70,6 +73,8 @@ if (!configured) {
       },
       publish(game) {
         currentGame = game;
+        if(game?.tournamentId && currentTournament?.id !== game.tournamentId) currentTournament = {id:game.tournamentId,name:game.tournamentName,rounds:game.tournamentBracket,players:game.tournamentPlayers||[]};
+        if(game?.tournamentId && currentTournament) {currentTournament.rounds=game.tournamentBracket;currentTournament.players=game.tournamentPlayers||currentTournament.players}
         return publishLatest();
       },
       refresh(game) {
@@ -77,10 +82,23 @@ if (!configured) {
         if (!room) return Promise.reject(new Error('Share the match first'));
         return publishLatest();
       },
+      async shareTournament(t,game=null) {
+        currentTournament={id:t.id,name:t.name,rounds:t.rounds,players:t.rounds[0].flatMap(m=>[m.a,m.b]).filter(Boolean).map(c=>({...c,stats:window.DARTHS_TOUR_STATS?.(c.id)||{}}))};
+        currentGame=game?.tournamentId===t.id?game:null;
+        if(!room){room=newRoom();generation++}
+        await publishLatest();
+        return new URL('./?watch='+room,location.href).href;
+      },
+      updateTournament(t){
+        if(!room||!currentTournament||currentTournament.id!==t.id)return Promise.resolve();
+        currentTournament.rounds=t.rounds;
+        return publishLatest();
+      },
       async stop() {
         const old = room;
         room = null;
         currentGame = null;
+        currentTournament = null;
         generation++;
         await chain;
         if (old) {
@@ -110,7 +128,20 @@ function leadClass(players,key,i){
 function indicator(g,p,i){
  return `<div class="win-indicators">${['sets','legs'].map((key,k)=>`<div class="win-group"><small>${k?'L':'S'}</small><span class="win-box ${leadClass(g.participants,key,i)}">${Number(p[key])||0}</span></div>`).join('')}</div>`;
 }
+
+      let tourRecord=null,tourSelected=null,tourTimer=null;
+      function tourCountdown(ends){if(!ends)return 'No timer';const seconds=Math.max(0,Math.ceil((ends-Date.now())/1000));return `${String(Math.floor(seconds/60)).padStart(2,'0')}:${String(seconds%60).padStart(2,'0')}`}
+      function renderTourView(record){
+        tourRecord=record;const g=record.game,b=g?.breakTime||{},t=record.tournament||{name:g?.tournamentName||'DARTHS',rounds:g?.tournamentBracket||[],players:g?.tournamentPlayers||[]};
+        const mode=b.active?b.template:'bracket',players=t.players||[],selected=players.find(p=>String(p.id)===String(tourSelected??b.playerId))||players[0];
+        const playerStats=p=>{if(!p)return '<p>Select a player.</p>';const s=p.stats||{};return `<div class="tour-watch-stats"><h2>${escapeHTML(p.label)}</h2><div class="tour-watch-statgrid"><div><b>${s.games??'—'}</b><small>Recorded games</small></div><div><b>${typeof s.average==='number'?s.average.toFixed(2):'—'}</b><small>3-dart average</small></div><div><b>${s.oneEighties??'—'}</b><small>180s</small></div><div><b>${s.high??'—'}</b><small>Highest turn</small></div></div></div>`};
+        const bracket=`<div class="tour-watch-bracket">${(t.rounds||[]).map((round,r)=>`<div class="tour-watch-round"><h3>${r===t.rounds.length-1?'Final':`Round ${r+1}`}</h3>${round.map(m=>`<div class="tour-watch-match">${[m.a,m.b].map(p=>p?`<button class="tour-watch-person" data-tour-watch-player="${escapeHTML(p.id)}">${escapeHTML(p.label)}${m.winner?.id===p.id?' ✓':''}</button>`:'<span>TBD</span>').join('')}<small>${escapeHTML(m.score||'')}</small></div>`).join('')}</div>`).join('')}</div>`;
+        content.innerHTML=`<div class="tour-watch-shell"><div class="tour-watch-heading"><h1>🏆 ${escapeHTML(t.name)}</h1>${b.active?`<div class="tour-watch-countdown">☕ BREAK TIME <strong id="tourTimer">${tourCountdown(b.endsAt)}</strong></div>`:''}</div>${mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>☕</div><h2>${mode==='commercial'?'Commercial Break':'Break Time'}</h2><p>${escapeHTML(b.message||'Players are taking a break.')}</p></div>`:mode==='stats'?`<div class="tour-watch-back">Player Statistics</div>${playerStats(selected)}`:`<div class="tour-watch-columns">${bracket}<aside class="tour-watch-side"><h2>Player Statistics</h2>${playerStats(selected)}<p>Tap a player in the bracket to show their statistics.</p></aside></div>`}</div>`;
+        content.querySelectorAll('[data-tour-watch-player]').forEach(el=>el.onclick=()=>{tourSelected=el.dataset.tourWatchPlayer;renderTourView(tourRecord)});
+        clearInterval(tourTimer);if(b.active&&b.endsAt)tourTimer=setInterval(()=>{const el=content.querySelector('#tourTimer');if(el)el.textContent=tourCountdown(b.endsAt);else clearInterval(tourTimer)},1000);
+      }
       function renderRecord(record) {
+        if(record?.tournament && (!record.game || record.game.breakTime?.active)){status.textContent='● LIVE';renderTourView(record);return}
         if (!record?.game) {
           status.textContent = 'WAITING';
           content.textContent = 'No active shared match found.';
@@ -133,7 +164,7 @@ function indicator(g,p,i){
               const e=layout.elements[key];if(!e)continue;
               const size=Math.max(9,Math.min(100,Number(e.size)||16));
               const color=/^#[0-9a-fA-F]{6}$/.test(e.color)?e.color:'#ffffff';
-              st.textContent+=selectors.map(sel=>`${sel}{font-size:${size}px!important;color:${color}!important;${e.visible===false?'visibility:hidden!important;':''}transform:translate(${Math.max(-12,Math.min(12,Number(e.x)||0))}px,${Math.max(-12,Math.min(12,Number(e.y)||0))}px)!important}`).join('');
+              st.textContent+=selectors.map(sel=>`${sel}{font-size:${size}px!important;color:${color}!important;${e.visible===false?'display:none!important;':''}}`).join('');
             }
           }
           if(['default','dark','blue'].includes(layout.theme)){
