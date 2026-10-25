@@ -1,0 +1,20 @@
+/* DARTHS Players: scoped redesign; does not alter Home or Tournament */
+#players .pd-shell{background:#0a2036;border:1px solid #254d70;padding:15px;border-radius:16px;max-width:720px;margin-inline:auto}
+#players .pd-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+#players .pd-heading h2{margin:0;font-size:20px}#players .pd-heading p{margin:4px 0 0;font-size:12px}
+#players .pd-count{border-radius:999px;background:#173b5e;color:#b9ddff;padding:6px 10px;font-size:12px;white-space:nowrap}
+#players .pd-tabs{display:grid;grid-template-columns:1fr 1fr;gap:5px;padding:4px;background:#071728;border:1px solid #25435f;border-radius:12px;margin-bottom:15px}
+#players .pd-tabs button{background:transparent;border-radius:9px;padding:10px 6px;font-weight:700;font-size:13px}#players .pd-tabs button.active{background:#1379e8;color:white}
+#players .pd-add{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;margin-bottom:10px}#players .pd-add input{min-width:0}#players .pd-add button{white-space:nowrap;padding-inline:15px}
+#players #pdSearch{margin-bottom:10px;background:#0b1b30}#players .pd-player-list{display:grid;gap:8px}
+#players .pd-player-card{display:flex;align-items:center;gap:7px;min-width:0;padding:7px;background:#102d49;border:1px solid #285779;border-radius:11px}
+#players .pd-check{display:flex;align-items:center;margin:0;padding:4px}#players .pd-check input{width:17px;height:17px;accent-color:#1687f4;flex:none}
+#players .pd-profile{display:flex;align-items:center;text-align:left;gap:10px;min-width:0;flex:1;padding:0;background:transparent}
+#players .pd-avatar{display:grid;place-items:center;width:38px;height:38px;flex:none;border-radius:50%;background:hsl(var(--pd-hue) 75% 40%);font-weight:800;font-size:12px}
+#players .pd-person{display:flex;flex-direction:column;gap:3px;min-width:0}#players .pd-person strong{font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}#players .pd-person small{font-size:10px;color:#91b5d5}#players .pd-arrow{margin-left:auto;color:#82b7dc;font-size:23px}
+#players .pd-rename,#players .pd-delete{flex:none;width:32px;height:34px;padding:0;border-radius:8px;font-size:18px;background:#214767}#players .pd-delete{background:#843144}
+#players .pd-empty{text-align:center;padding:16px}#players .pd-stat-choose{margin-bottom:12px}#players .pd-stat-choose select{margin-top:5px}
+#players .pd-profile-head{display:flex;align-items:center;gap:12px;margin:10px 0 14px}#players .pd-profile-head h3{margin:0;font-size:21px}#players .pd-profile-avatar{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;background:#1465aa;font-size:23px}
+#players .pd-avg-hero{display:flex;flex-direction:column;align-items:center;gap:6px;background:linear-gradient(130deg,#164b80,#0d2e4d);border:1px solid #2b79b4;border-radius:14px;padding:20px;margin-bottom:12px}#players .pd-avg-hero span{font-size:12px;color:#9ad4ff;letter-spacing:1px;font-weight:800}#players .pd-avg-hero strong{font-size:clamp(35px,8vw,55px);line-height:1.1}#players .pd-avg-hero small{font-size:11px}
+#players .pd-stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#players .pd-stat-grid .stat{display:flex;flex-direction:column;gap:7px;background:#163754;border:1px solid #285777;border-radius:11px;padding:13px;min-width:0}#players .pd-stat-grid .stat span{font-size:12px;color:#b9d7ee}#players .pd-stat-grid .stat b{font-size:22px;color:white}
+@media(max-width:420px){#players .pd-shell{padding:11px}#players .pd-profile{gap:7px}#players .pd-avatar{width:33px;height:33px}#players .pd-person small{font-size:9px}#players .pd-rename,#players .pd-delete{width:29px}#players .pd-stat-grid .stat{padding:11px}}
