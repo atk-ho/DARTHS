@@ -7,7 +7,7 @@ const escapeHTML = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&l
 const configured = Object.values(firebaseConfig).every(x => x && !String(x).includes('PASTE_'));
 
 if (viewing) {
-  document.head.insertAdjacentHTML('beforeend','<link rel="stylesheet" href="./tournament.css?v=20261025-1">');
+  document.head.insertAdjacentHTML('beforeend','<link rel="stylesheet" href="./tournament.css?v=20261025-spectator-bracket">');
   document.body.innerHTML = `<main class="watch-shell"><header class="watch-header"><div class="watch-brand"><img src="./icons/icon-192.png" alt=""> DARTHS</div><span id="connection">Connecting…</span></header><div id="watchContent" class="watch-content">Loading live scores…</div></main>`;
   document.title = 'DARTHS · Live Scoreboard';
 }
@@ -150,8 +150,32 @@ function indicator(g,p,i){
         lastSignature='';tourRecord=record;const g=record.game,b=g?.breakTime||{},t=record.tournament||{name:g?.tournamentName||'DARTHS',rounds:g?.tournamentBracket||[],players:g?.tournamentPlayers||[]};
         const mode=b.active?b.template:(record.viewMode||'intro'),players=t.players||[],selected=players.find(p=>String(p.id)===String(tourSelected??b.playerId))||players[0];
         const playerStats=p=>{if(!p)return '<p>Select a player.</p>';const s=p.stats||{};return `<div class="tour-watch-stats"><h2>${escapeHTML(p.label)}</h2><div class="tour-watch-statgrid"><div><b>${s.games??'—'}</b><small>Recorded games</small></div><div><b>${typeof s.average==='number'?s.average.toFixed(2):'—'}</b><small>3-dart average</small></div><div><b>${s.oneEighties??'—'}</b><small>180s</small></div><div><b>${s.high??'—'}</b><small>Highest turn</small></div></div></div>`};
-        const bracket=`<div class="tour-watch-bracket">${(t.rounds||[]).map((round,r)=>`<div class="tour-watch-round"><h3>${r===t.rounds.length-1?'FINAL':`ROUND ${r+1}`}</h3>${round.map((m,i)=>`<div class="tour-watch-match ${m.winner?'is-complete':''}"><small>M${i+1} ${m.status==='bye'?'· BYE':m.winner?'· WINNER':''}</small>${[m.a,m.b].map(p=>p?`<button class="tour-watch-person ${m.winner?.id===p.id?'winner':''}" data-tour-watch-player="${escapeHTML(p.id)}">${escapeHTML(p.label)}${m.winner?.id===p.id?' ✓':''}</button>`:'<span class="tour-watch-person muted">TBD</span>').join('')}<small>${escapeHTML(m.score||'')}</small></div>`).join('')}</div>`).join('')}</div>`;
-        content.innerHTML=`<div class="tour-watch-shell"><div class="tour-watch-heading"><h1>🏆 ${escapeHTML(t.name)}</h1>${b.active?`<div class="tour-watch-countdown">☕ BREAK <strong id="tourTimer">${tourCountdown(b.endsAt)}</strong></div>`:'<span class="tour-live-tag">● TOURNAMENT LIVE</span>'}</div>${mode==='intro'?`<div class="tour-watch-intro"><div class="tour-intro-trophy">🏆</div><div class="tour-intro-eyebrow">WELCOME TO</div><h1>DARTHS</h1><h2>${escapeHTML(t.name)}</h2><p>${players.length} players · Single Elimination</p><span>Waiting for the Host to display the bracket</span></div>`:mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>☕</div><h2>${mode==='commercial'?'Commercial Break':'Break Time'}</h2><p>${escapeHTML(b.message||'Players are taking a break.')}</p></div>`:mode==='stats'?`<div class="tour-watch-back">Player Statistics</div>${playerStats(selected)}`:`<div class="tour-watch-columns"><div class="tour-bracket-wrap"><p class="tour-watch-hint">Swipe horizontally to follow the tournament</p>${bracket}</div><aside class="tour-watch-side"><h2>Player Statistics</h2>${playerStats(selected)}<p>Tap a player to see their statistics.</p></aside></div>`}</div>`;
+        // Reuse the Host bracket geometry and card classes for the spectator display.
+        // All match centers and SVG connections share the same coordinate system.
+        const spectatorBracket=()=>{
+          const rounds=t.rounds||[], width=226, gap=56, step=104;
+          if(!rounds.length)return '<p class="tour-watch-hint">The Host is preparing the bracket.</p>';
+          const height=Math.max(190,rounds[0].length*step+54);
+          const canvasWidth=rounds.length*(width+gap)+20;
+          const center=(r,i)=>step*(Math.pow(2,r)*(i+.5))+16;
+          const lines=[];
+          for(let r=0;r<rounds.length-1;r++)for(let i=0;i<rounds[r].length;i++){
+            const m=rounds[r][i], x1=r*(width+gap)+width+12, x2=(r+1)*(width+gap)-8;
+            const y1=center(r,i),y2=center(r+1,Math.floor(i/2));
+            lines.push(`<path d="M${x1} ${y1} H${x1+gap/2} V${y2} H${x2}" stroke="${m.winner?'#2ce8ad':'#517a9f'}" class="${m.winner?'tour-line-winner':''}"/>`);
+          }
+          const cards=rounds.map((round,r)=>round.map((m,i)=>{
+            const completed=!!m.winner,ready=!!m.a&&!!m.b&&!completed;
+            const person=p=>`<span class="tour-node-person ${completed&&m.winner?.id===p?.id?'tour-node-victor':''}">${p?escapeHTML(p.label):'To be determined'}${completed&&m.winner?.id===p?.id?' ✓':''}</span>`;
+            return `<div class="tour-node ${completed?'tour-node-done':''} ${ready?'tour-node-ready':''}" style="left:${r*(width+gap)+12}px;top:${center(r,i)-37}px;width:${width}px" aria-label="${escapeHTML(m.a?.label||'TBD')} versus ${escapeHTML(m.b?.label||'TBD')}"><small>${r===rounds.length-1?'FINAL':`ROUND ${r+1}`} · M${i+1} ${m.status==='bye'?'· BYE':completed?'· FINISHED':ready?'· READY':'· WAITING'}</small>${person(m.a)}${person(m.b)}${m.score?`<small>${escapeHTML(m.score)}</small>`:''}</div>`;
+          }).join('')).join('');
+          return `<div class="tour-bracket-guide">Swipe or scroll horizontally to explore rounds</div><div class="tour-bracket-scroll tour-spectator-scroll" tabindex="0" aria-label="Live tournament bracket"><div class="tour-bracket-canvas" style="width:${canvasWidth}px;height:${height}px"><svg class="tour-bracket-lines" viewBox="0 0 ${canvasWidth} ${height}" aria-hidden="true">${lines.join('')}</svg>${cards}</div></div>`;
+        };
+        const oldScroll=content.querySelector('.tour-spectator-scroll');
+        const oldX=oldScroll?.scrollLeft||0,oldY=oldScroll?.scrollTop||0;
+        content.innerHTML=`<div class="tour-watch-shell"><div class="tour-watch-heading"><h1>🏆 ${escapeHTML(t.name)}</h1>${b.active?`<div class="tour-watch-countdown">☕ BREAK <strong id="tourTimer">${tourCountdown(b.endsAt)}</strong></div>`:'<span class="tour-live-tag">● TOURNAMENT LIVE</span>'}</div>${mode==='intro'?`<div class="tour-watch-intro"><div class="tour-intro-trophy">🏆</div><div class="tour-intro-eyebrow">WELCOME TO</div><h1>DARTHS</h1><h2>${escapeHTML(t.name)}</h2><p>${players.length} players · Single Elimination</p><span>Waiting for the Host to display the bracket</span></div>`:mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>☕</div><h2>${mode==='commercial'?'Commercial Break':'Break Time'}</h2><p>${escapeHTML(b.message||'Players are taking a break.')}</p></div>`:mode==='stats'?`<div class="tour-watch-back">Player Statistics</div>${playerStats(selected)}`:`<div class="tour-spectator-bracket"><div class="tour-spectator-heading"><h2>TOURNAMENT BRACKET</h2><span>LIVE UPDATES</span></div>${spectatorBracket()}</div>`}</div>`;
+        const newScroll=content.querySelector('.tour-spectator-scroll');
+        if(newScroll){newScroll.scrollLeft=oldX;newScroll.scrollTop=oldY;}
         content.querySelectorAll('[data-tour-watch-player]').forEach(el=>el.onclick=()=>{tourSelected=el.dataset.tourWatchPlayer;renderTourView(tourRecord)});
         clearInterval(tourTimer);if(b.active&&b.endsAt)tourTimer=setInterval(()=>{const el=content.querySelector('#tourTimer');if(el)el.textContent=tourCountdown(b.endsAt);else clearInterval(tourTimer)},1000);
       }

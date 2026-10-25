@@ -48,3 +48,16 @@
 /* Full-width tournament modal, without changing other DARTHS dialogs. */
 .darths-feature-panel:has(.tour-bracket-scroll){width:min(1100px,100%)}
 @media(max-width:600px){.darths-feature-modal{padding:6px}.darths-feature-panel:has(.tour-bracket-scroll){padding:10px;max-height:96dvh}.tour-bracket-scroll{max-height:56dvh}.tour-watch-side{padding:10px}}
+
+/* Spectator bracket uses the Host's exact card and connector geometry. */
+body:has(.watch-shell) .tour-watch-shell{width:100%;min-width:0;min-height:0;flex:1;display:flex;flex-direction:column;background:radial-gradient(ellipse at 45% 5%,#0d2c4e,#061628 72%);overflow:hidden}
+body:has(.watch-shell) .tour-spectator-bracket{display:flex;flex-direction:column;min-width:0;min-height:0;flex:1}
+body:has(.watch-shell) .tour-spectator-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:3px 0 10px}
+body:has(.watch-shell) .tour-spectator-heading h2{font-size:clamp(16px,2.3vw,28px);letter-spacing:.075em;margin:0}
+body:has(.watch-shell) .tour-spectator-heading span{color:#49d8ae;font-size:11px;font-weight:800;letter-spacing:.1em}
+body:has(.watch-shell) .tour-spectator-scroll{flex:1;min-height:200px;max-height:calc(100dvh - 190px);padding:12px;scroll-snap-type:none;touch-action:pan-x pan-y}
+body:has(.watch-shell) .tour-spectator-scroll .tour-node{cursor:default}
+body:has(.watch-shell) .tour-spectator-scroll .tour-node:hover{transform:none}
+@media(max-width:700px){body:has(.watch-shell) .tour-watch-shell{padding:10px}body:has(.watch-shell) .tour-watch-heading{padding-bottom:9px;margin-bottom:10px}body:has(.watch-shell) .tour-spectator-heading{margin-bottom:5px}body:has(.watch-shell) .tour-spectator-scroll{max-height:calc(100dvh - 145px)}}
+@media(max-height:480px) and (orientation:landscape){body:has(.watch-shell) .tour-watch-shell{padding:7px}body:has(.watch-shell) .tour-watch-heading{padding-bottom:5px;margin-bottom:5px}body:has(.watch-shell) .tour-spectator-heading{margin:0}body:has(.watch-shell) .tour-spectator-scroll{max-height:calc(100dvh - 110px)}}
+@media(prefers-reduced-motion:reduce){body:has(.watch-shell) .tour-line-winner{animation:none}}
