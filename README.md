@@ -1,105 +1,139 @@
-# 🎯 DARTHS — Darts Scoreboard & Tournament Manager
+# 🎯 DARTHS
 
-**DARTHS** is a mobile-friendly darts scoreboard and tournament web app with live spectator displays, tournament brackets, player statistics, and customizable audio.
+**DARTHS** is a mobile-friendly darts scoreboard and tournament
+management web app with live spectator displays, player statistics, and
+customizable audio.
 
-**Live website:** https://atk-ho.github.io/DARTHS/  
-**Platform:** Web / installable Progressive Web App (PWA)  
-**License:** MIT
-
-> **Status:** Active development. Test match results, tournament advancement, and Firebase sharing on your own devices before running an official event.
+> **Status:** Beta. Some features require further real-device and
+> Firebase testing.
 
 ## Features
 
 ### 🎮 Casual Games
-- Individual and team match setup
-- Configurable starting score, sets, legs, and checkout rules
-- Score entry, turn tracking, undo, and match results
-- Player history and statistics saved in the browser
+
+-   Individual and team game setup
+-   Starting scores including 301, 501, 701, and 1001
+-   Sets and legs, configurable match format, and checkout options
+-   Score entry, turn management, and match results
+-   Player selection and throwing-order controls
 
 ### 🏆 Tournaments
-- **Standard Elimination:** head-to-head (1v1) matches with BYEs where needed
-- **Knockout Elimination:** 2–4 players in one match, one winner advances, no BYEs
-- Participant selection and saved rosters
-- Connected bracket paths, match preparation, and winner advancement
-- Host-controlled countdown and manual throwing order
-- Tournament winner announcements and celebrations
 
-### 📺 Live Spectator Mode
-- Share a live viewing link from the Host
-- Firebase Realtime Database synchronization
-- Host-selected Welcome, Bracket, Upcoming Match, Live Scoreboard, Player Statistics, and Break displays
-- Responsive presentation for phones, tablets, monitors, and TVs
-- Fullscreen option on supported browsers
+-   **Standard Elimination:** 1v1 matches with automatic BYEs when
+    needed
+-   **Knockout Elimination:** 2--4 players per match, without BYEs; one
+    winner advances
+-   Connected tournament brackets showing progression
+-   Manual, random, and statistics-based matchup arrangement
+-   Upcoming-match countdown and host-controlled match start
+-   Tournament results and champion presentation
+-   Dedicated bracket fullscreen viewer (landscape rotation depends on
+    browser support)
+
+### 👥 Players & Statistics
+
+-   Add, search, rename, and remove players
+-   Player list and separate statistics dashboard
+-   Saved performance data such as 3-dart average, highest turn, darts
+    thrown, 180s, and busts where recorded
+
+### 📺 Live Spectator Display
+
+-   Shareable live match view through Firebase
+-   Host-controlled welcome, bracket, player statistics, break,
+    upcoming-match, and scoring screens
+-   Countdown and tournament progression synchronization
+-   Responsive layouts for phones, tablets, desktop monitors, and TVs
 
 ### 🔊 Sound & Voice
-- Built-in synthesized DARTHS themes for welcome, countdown, breaks, and championship celebrations
-- Effects for throws, busts, 180s, leg wins, set wins, and match wins
-- Voice score and winner announcements (browser speech synthesis)
-- Event-specific volume, looping, and sound selection
-- Optional custom audio files; locally uploaded files do **not** automatically sync to spectators
-- Spectator audio may require an **Enable Audio** tap due to browser autoplay restrictions
 
-### ⚙️ Personalization
-- Host and spectator layout options
-- Responsive interface and PWA installation
-- Browser-local settings and game data
+-   Voice score announcements and sound effects
+-   Built-in music and event audio, including leg, set, match, and
+    champion events
+-   Custom audio support and playback settings where supported
+-   Browser audio may require a user interaction before playback
+
+### 🎨 Display & Offline Support
+
+-   Host and spectator display customization
+-   Responsive mobile-first interface
+-   Browser-local storage for supported local settings and records
+-   Progressive Web App (PWA) assets and service-worker support
 
 ## Getting Started
 
-### Use the hosted app
+DARTHS is a static web application built with **HTML, CSS, and
+JavaScript**. You can host the project on GitHub Pages or another static
+hosting service.
 
-Open **https://atk-ho.github.io/DARTHS/** in a modern browser. On supported mobile browsers, use **Add to Home Screen** to install it like an app.
+1.  Download or clone the repository.
+2.  Serve the project using a local development server (recommended) or
+    deploy it to a static host.
+3.  Open the site in a modern browser.
+4.  Add players and start a casual game, or create a tournament.
 
-### Host your own copy
+**Live sharing** requires a correctly configured Firebase project with
+Anonymous Authentication and Realtime Database access rules. Do not
+publish unrestricted database rules.
 
-1. Upload the project files to the root of a GitHub Pages repository.
-2. Create a Firebase project with **Anonymous Authentication** enabled.
-3. Create a **Realtime Database** and set the correct project configuration in `firebase-config.js`.
-4. Review the supplied `database.rules.json` / `firebase-rules.json` and **merge only the required DARTHS rules** into your database. Do not overwrite unrelated database rules.
-5. Deploy with GitHub Pages, then hard-refresh the Host and Spectator browsers.
-6. Start a match or tournament, choose **Go Live & Share**, and open the generated link on a separate device.
+### Firebase security notes
 
-**Security:** Live spectator links should expose only public match information. Firebase access rules must be configured carefully. Do not store private credentials or sensitive personal information in shared match records.
+-   Enable only the authentication methods your app uses.
+-   Restrict writes to the authenticated owner of each live room.
+-   Validate allowed fields and room identifiers in Realtime Database
+    rules.
+-   Test host and spectator access separately before using the app at an
+    event.
+-   Firebase web configuration is not a substitute for database
+    authorization rules.
 
-## How Tournament Play Works
+## Tournament Workflow
 
-1. Create a tournament and select **Standard Elimination** or **Knockout Elimination**.
-2. Choose participants and match settings.
-3. Open the bracket and optionally start the live spectator broadcast.
-4. Select a match, prepare the countdown, or skip ahead when ready.
-5. Manually determine throwing order and start scoring.
-6. Record the result; the winner advances and the tournament bracket updates.
-7. Continue until a tournament champion is declared.
+1.  Create a tournament and select **Standard Elimination** or
+    **Knockout Elimination**.
+2.  Choose participants and match settings.
+3.  Arrange matchups before the first match (manual, random, or
+    stat-balanced).
+4.  Optionally start a live spectator broadcast.
+5.  Select a match, prepare the countdown, and determine throwing order.
+6.  Start the match, record scores, and advance the winner.
+7.  Continue until a tournament champion is determined.
 
-## Data and Connectivity
+## Data & Privacy
 
-- Local game data, settings, and uploaded audio are stored on the current device/browser.
-- Clearing browser storage may remove locally saved records and custom audio.
-- **Live spectator synchronization requires internet access and correctly configured Firebase permissions.**
-- The installed PWA may cache older assets; reload or reopen after deploying updates.
+DARTHS uses local browser storage for supported settings and records,
+and Firebase Realtime Database for supported live sharing. Clearing
+browser data may remove locally stored information. Avoid entering
+sensitive personal information in player names or publicly shared
+screens.
 
-## Project Files
+## Security
 
-| File | Purpose |
-| --- | --- |
-| `index.html` | Main DARTHS application and Host interface |
-| `live-sync.js` | Firebase live sharing and spectator rendering |
-| `firebase-config.js` | Firebase project configuration |
-| `database.rules.json`, `firebase-rules.json` | Reference Realtime Database rules |
-| `tournament.css`, `tournament-create-fix.css` | Tournament presentation and creation styles |
-| `darths-audio.js`, `darths-audio.css` | Music, sound effects, and audio settings |
-| `layout-editor.js`, `layout-editor.css` | Display layout customization |
-| `settings.js`, `settings.css` | Additional settings UI |
-| `sw.js`, `manifest.webmanifest` | PWA caching and installation |
+Please read [SECURITY.md](.github/SECURITY.md) for vulnerability
+reporting guidance, if that file is present in your repository.
 
-## Known Limitations
+## Compatibility & Known Limitations
 
-- Browser autoplay restrictions can prevent spectator audio until the viewer interacts with the page.
-- Custom audio uploaded to one device is not automatically transferred to another; use a hosted HTTPS audio URL for spectator playback.
-- Live sharing depends on Firebase Anonymous Authentication and compatible Realtime Database rules.
-- The app is under active development; some combinations of match format, device rotation, and display mode may need further testing.
+-   Fullscreen and orientation locking depend on browser and device
+    support.
+-   Audio autoplay restrictions may require tapping **Enable Audio** on
+    spectator devices.
+-   Live synchronization depends on connectivity, authentication, and
+    Firebase rules.
+-   The latest UI and audio changes still need end-to-end testing on
+    actual devices.
 
-## Author and License
+## Contributing
 
-Developed by **Arthur Reguindin Jr.**  
-Licensed under the [MIT License](LICENSE).
+Issues and constructive feedback are welcome. When reporting a bug,
+include the device/browser, steps to reproduce, expected behavior, and
+relevant console errors (without exposing private credentials).
+
+## License
+
+Refer to the repository's `LICENSE` file, if provided. No license is
+implied by this README alone.
+
+------------------------------------------------------------------------
+
+**DARTHS** --- Darts scoring, tournaments, and live spectators.

@@ -1,64 +1,91 @@
-# DARTHS — Release Notes
+# DARTHS v1.2.0-beta --- Players, Brackets & Tournament Experience
 
-**Suggested GitHub release title:** DARTHS — Tournament & Audio Experience Update  
-**Suggested tag:** `v1.1.0-beta`  
-**Release type:** Pre-release  
-**Date:** October 25, 2026
-
-> This is a proposed release description for the current development build. The tag is a suggested name, not an existing GitHub release. End-to-end tests across Host, Spectator, and Firebase have not been confirmed.
+**Release type:** Pre-release\
+**Suggested tag:** `v1.2.0-beta`\
+**Release status:** Draft --- not published by this document
 
 ## Highlights
 
-### Tournament Formats
-- Added **Knockout Elimination** for 2–4 players per match, with no BYEs.
-- Retained **Standard Elimination** for 1v1 matches with automatic BYEs.
-- Improved tournament creation controls, including compact participant selection and match settings.
-- Added manual throwing-order selection before tournament matches.
+This beta focuses on tournament management, mobile Host usability, the
+Players tab, and the live spectator experience.
 
-### Live Spectator Experience
-- Improved tournament bracket presentation and responsive spectator displays.
-- Added an expanded player statistics dashboard.
-- Preserved Host-controlled spectator screens, including Welcome, Bracket, Upcoming Match, Live Scoreboard, Statistics, and Break.
-- Removed the extra **View Bracket** link from the live spectator scoreboard; the Host controls bracket presentation.
+### Added / Improved
 
-### Music, Sound & Voice
-- Added built-in synthesized themes and event-specific sound effects.
-- Added controls for music, effects, voice announcements, volume, looping, and optional custom audio.
-- Included sounds for **180, Bust, Leg Win, Set Win, Match Win, and Tournament Champion**.
-- Updated Sound & Voice settings initialization and spectator audio handling.
+-   **Redesigned Players tab:** searchable player list, compact cards,
+    player management, and separate performance dashboard.
+-   **Two tournament formats:** Standard Elimination (1v1 with BYEs) and
+    Knockout Elimination (2--4 players per match, no BYEs).
+-   **Matchup editor:** simplified match-by-match player assignments,
+    with manual swaps, random draw, and stat-balanced arrangement.
+-   **Bracket fullscreen:** bracket-only viewing with an exit control;
+    landscape orientation requested when supported.
+-   **Match preparation:** countdown, Host-controlled skip/start, and
+    manual throwing-order selection.
+-   **Live spectator displays:** tournament bracket, player performance,
+    upcoming match, match results, and champion presentation.
+-   **Sound & Voice:** event audio and music controls, including support
+    for built-in and custom audio where configured.
+-   **Create Tournament form:** compact participant selection and
+    streamlined match settings.
 
-### Interface and Stability
-- Renamed Home's **New Game** section to **Casual Game**.
-- Continued mobile and landscape usability improvements.
-- Addressed reported UI styling and caching issues.
+### Fixes / Refinements
 
-## Deployment Notes
+-   Reduced spectator statistics dashboard overflow and repeated visual
+    animation.
+-   Removed the spectator live-scoreboard **View Bracket** shortcut;
+    Host retains display control.
+-   Improved bracket presentation and mobile-focused controls.
+-   Updated terminology and layout consistency.
 
-1. Back up your existing repository and local DARTHS data.
-2. Deploy the current project files, including the latest audio and UI fixes.
-3. Confirm Firebase Anonymous Authentication and Realtime Database rules.
-4. Refresh both Host and Spectator browsers to clear stale cached assets.
-5. Test a complete Standard and Knockout tournament, audio settings, and spectator synchronization.
+## Installation / Upgrade
+
+1.  Back up your current DARTHS files and local data before replacing
+    website files.
+2.  Deploy the complete compatible build to your static host (such as
+    GitHub Pages).
+3.  Refresh the site and, if necessary, clear outdated service-worker
+    cache.
+4.  Check Firebase Authentication and Realtime Database rules before
+    using **Go Live & Share**.
+5.  Verify Host and Spectator views on separate devices.
+
+> **Important:** Do not combine files from unrelated patch ZIPs without
+> checking compatibility. A GitHub release should contain one tested,
+> consistent build.
+
+## Testing Checklist
+
+-   [ ] Add, rename, search, and remove players
+-   [ ] Start and finish a casual game
+-   [ ] Create Standard Elimination tournaments with odd player counts
+    and verify BYEs
+-   [ ] Create Knockout Elimination tournaments with 3, 5, and 7 players
+-   [ ] Save manual, random, and stat-balanced matchups
+-   [ ] Open and exit bracket-only fullscreen on mobile
+-   [ ] Start, skip, and cancel upcoming-match countdowns
+-   [ ] Set throwing order and complete a tournament match
+-   [ ] Verify spectator countdown, scoring, statistics, results, and
+    champion screens
+-   [ ] Verify Sound & Voice settings and playback on Host and Spectator
+    devices
+-   [ ] Verify Firebase permissions and reconnection behavior
 
 ## Known Limitations
 
-- Spectator audio may require an initial tap to enable playback.
-- Uploaded custom music remains local unless hosted and made available to spectators.
-- Firebase permissions and live synchronization require verification in the deployed environment.
-- Full regression testing across devices and game modes remains pending.
+-   Automatic landscape rotation is not supported by every mobile
+    browser.
+-   Spectator audio may require user interaction to unlock playback.
+-   Live sharing requires correct Firebase authentication and security
+    rules.
+-   Some features have not yet been verified end-to-end across browsers
+    and devices.
 
-## Release Checklist
+## Release Guidance
 
-- [ ] Confirm Create Tournament UI matches the intended reference design
-- [ ] Confirm Sound & Voice settings appear and save correctly
-- [ ] Test leg, set, match, and champion sounds on Host and Spectator
-- [ ] Test Standard Elimination BYEs and Knockout Elimination advancement
-- [ ] Test countdown, throwing order, and tournament return flow
-- [ ] Test portrait, landscape, and spectator fullscreen layouts
-- [ ] Confirm GitHub Pages deployment and service-worker refresh
+Mark this GitHub release as a **Pre-release** until the testing
+checklist passes. Do not claim a production-stable release solely from
+syntax checks.
 
----
+------------------------------------------------------------------------
 
-**Project:** https://atk-ho.github.io/DARTHS/  
-**License:** MIT  
-**Developer:** Arthur Reguindin Jr.
+**DARTHS** --- Tournament & player management beta update.
