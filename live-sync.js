@@ -52,7 +52,7 @@ if (!configured) {
           updatedAt: Date.now(),
           game: currentGame ? copy(currentGame) : null,
           viewMode: currentTournament ? tournamentMode : 'match',
-          tournament: currentTournament ? {...copy(currentTournament),bracketDisplay:copy(spectatorBracketSettings)} : (currentGame?.tournamentId ? {id:currentGame.tournamentId,name:currentGame.tournamentName,rounds:currentGame.tournamentBracket,players:currentGame.tournamentPlayers||[]} : null)
+          tournament: currentTournament ? {...copy(currentTournament),bracketDisplay:copy(spectatorBracketSettings),audioConfig:window.DARTHS_AUDIO?.broadcastSettings?.()||null} : (currentGame?.tournamentId ? {id:currentGame.tournamentId,name:currentGame.tournamentName,rounds:currentGame.tournamentBracket,players:currentGame.tournamentPlayers||[]} : null)
         };
         await set(roomRef(target), record);
         lastError = null;
@@ -229,6 +229,7 @@ function indicator(g,p,i){
 
       }
       function renderRecord(record) {
+        window.DARTHS_AUDIO?.watchRecord(record);
         spectatorFullscreenRequest(record);
         if(record?.tournament && (record.viewMode!=='match' || !record.game || record.game.breakTime?.active)){status.textContent='● TOURNAMENT LIVE';renderTourView(record);return}
         if (!record?.game) {
