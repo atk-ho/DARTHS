@@ -1,0 +1,36 @@
+/* DARTHS Create Tournament: reference-matched, scoped overrides.
+   Loaded after the legacy feature-modal CSS to avoid specificity conflicts. */
+#featureModal:has(.tour-create-form) .darths-feature-panel{width:min(452px,calc(100vw - 20px));padding:13px 12px 11px;border:1px solid #286391;border-radius:13px;background:#091b30;max-height:min(96dvh,900px);overflow-y:auto;overflow-x:hidden}
+#featureModal:has(.tour-create-form) .darths-feature-heading{margin-bottom:12px;gap:10px}
+#featureModal:has(.tour-create-form) .darths-feature-heading h2{font-size:15px;font-weight:800}
+#featureModal:has(.tour-create-form) #featureClose{background:transparent;border:0;padding:4px 7px;font-size:16px}
+#featureModal .tour-create-form{display:grid;gap:10px;width:100%;font-size:12px}
+#featureModal .tour-create-form>label,#featureModal .tour-create-grid>label{display:grid;margin:0;gap:5px;font-size:12px;color:#c6d7e8;min-width:0}
+#featureModal .tour-create-form input:not([type=checkbox]):not([type=radio]),#featureModal .tour-create-form select{height:32px;min-height:32px;border-radius:18px;padding:5px 12px;border:1px solid #31506d;background:#091c30;color:#fff;font-size:12px}
+#featureModal .tour-create-form select{padding-right:25px}
+#featureModal .tour-format-choice{border:0;padding:0;margin:0;display:grid;gap:3px;min-width:0}
+#featureModal .tour-format-choice legend{padding:0 0 4px;color:#c6d7e8;font-size:12px;font-weight:700}
+#featureModal .tour-format-choice label{display:flex;align-items:center;gap:7px;margin:0;padding:4px 0;min-height:24px;background:transparent;border:0;border-radius:0;color:#f3f7ff;cursor:pointer;min-width:0}
+#featureModal .tour-format-choice label span{display:flex;flex-wrap:wrap;align-items:baseline;gap:8px;min-width:0}
+#featureModal .tour-format-choice label b{font-size:12px;font-weight:500;white-space:nowrap}
+#featureModal .tour-format-choice label small{font-size:10px;color:#b2c5d8;white-space:normal}
+#featureModal .tour-format-choice input[type=radio]{appearance:auto!important;accent-color:#fff;width:17px!important;min-width:17px;max-width:17px;height:17px!important;min-height:17px;margin:0;padding:0;flex:none}
+#featureModal .tour-participant-heading{display:flex;align-items:center;justify-content:space-between;margin:0;min-height:18px}
+#featureModal .tour-participant-heading b{font-size:12px}
+#featureModal .tour-participant-heading span{font-size:11px;color:#d0dfed}
+#featureModal .tour-participant-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 7px;max-height:250px;overflow:auto;padding:0;margin:0}
+#featureModal .tour-participant-grid label{display:flex!important;align-items:center!important;flex-direction:row!important;gap:7px;margin:0!important;padding:7px 8px!important;min-height:34px;min-width:0;border:0;border-radius:6px;background:#193754;color:#fff;font-size:12px;cursor:pointer}
+#featureModal .tour-participant-grid label span{display:block;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#featureModal .tour-participant-grid input[type=checkbox]{appearance:auto!important;display:block!important;position:static!important;opacity:1!important;visibility:visible!important;flex:0 0 17px!important;width:17px!important;min-width:17px!important;max-width:17px!important;height:17px!important;min-height:17px!important;margin:0!important;padding:0!important;accent-color:#e9f3ff}
+#featureModal .tour-settings-heading{font-size:13px;font-weight:750;margin:7px 0 0;padding:17px 0 0;border-top:1px solid #1a354e}
+#featureModal .tour-create-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 10px}
+#featureModal .tour-create-stepper{display:grid;grid-template-columns:31px minmax(0,1fr) 31px;gap:3px;align-items:center;padding:2px;border:1px solid #31506d;border-radius:18px;background:#091c30;height:34px;overflow:hidden}
+#featureModal .tour-create-stepper button{min-height:28px;height:28px;width:31px;border:0;border-radius:7px;background:#234665;color:#fff;padding:0!important;font-size:17px;line-height:1}
+#featureModal .tour-create-stepper input[type=number]{display:block!important;height:27px!important;min-height:27px!important;padding:0!important;border:0!important;border-radius:0!important;background:transparent!important;text-align:center;font-size:12px;font-weight:700;appearance:textfield;box-shadow:none}
+#featureModal .tour-create-stepper input::-webkit-inner-spin-button,#featureModal .tour-create-stepper input::-webkit-outer-spin-button{-webkit-appearance:none;margin:0}
+#featureModal #tourFormatHint{background:#102d49;border-radius:6px;padding:8px;margin:0;font-size:10px;color:#d3e2f1}
+#featureModal:has(.tour-create-form) .darths-feature-actions{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2fr);gap:8px;margin-top:9px}
+#featureModal:has(.tour-create-form) .darths-feature-actions button{width:100%;min-width:0;min-height:31px;padding:7px 9px;border-radius:20px;background:transparent;border:1px solid #31506d;font-size:12px;color:#f4f7fb}
+#featureModal:has(.tour-create-form) .darths-feature-actions button.primary{background:#e9edf2;color:#101b2a;border-color:#e9edf2;font-weight:750}
+@media(max-width:360px){#featureModal .tour-format-choice label span{gap:3px}#featureModal .tour-format-choice label small{font-size:9px}#featureModal .tour-create-grid{gap:8px}#featureModal .tour-participant-grid{gap:5px}}
+@media(max-height:680px){#featureModal:has(.tour-create-form) .darths-feature-panel{max-height:96dvh}#featureModal .tour-participant-grid{max-height:155px}}
