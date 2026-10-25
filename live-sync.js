@@ -100,7 +100,7 @@ if (!configured) {
         return publishLatest();
       },
       async shareTournament(t,game=null) {
-        currentTournament={id:t.id,name:t.name,rounds:t.rounds,players:t.rounds[0].flatMap(m=>[m.a,m.b]).filter(Boolean).map(c=>({...c,stats:window.DARTHS_TOUR_STATS?.(c.id)||{}}))};
+        currentTournament={id:t.id,name:t.name,config:t.config,rounds:t.rounds,players:t.rounds[0].flatMap(m=>Array.isArray(m.players)?m.players:[m.a,m.b]).filter(Boolean).map(c=>({...c,stats:window.DARTHS_TOUR_STATS?.(c.id)||{}}))};
         tournamentMode='intro';tournamentLiveId=t.id;
         currentGame=game?.tournamentId===t.id?game:null;
         if(!room){room=newRoom();generation++}
@@ -111,8 +111,8 @@ if (!configured) {
       async setTournamentView(t,mode,game=null,options={}){
         if(!room||!currentTournament||currentTournament.id!==t.id)throw new Error('Go Live first to create the spectator session');
         if(!['intro','bracket','match','stats','break','waiting','upnext'].includes(mode))throw new Error('Invalid spectator view');
-        currentTournament.rounds=t.rounds;
-        currentTournament.players=t.rounds[0].flatMap(m=>[m.a,m.b]).filter(Boolean).map(c=>({...c,stats:window.DARTHS_TOUR_STATS?.(c.id)||{}}));
+        currentTournament.rounds=t.rounds;currentTournament.config=t.config;
+        currentTournament.players=t.rounds[0].flatMap(m=>Array.isArray(m.players)?m.players:[m.a,m.b]).filter(Boolean).map(c=>({...c,stats:window.DARTHS_TOUR_STATS?.(c.id)||{}}));
         currentTournament.displayPlayerId=options.playerId??currentTournament.displayPlayerId??null;
         currentTournament.countdownEndsAt=options.endsAt??null;
         currentTournament.upNext=options.upNext??null;
@@ -123,7 +123,7 @@ if (!configured) {
       },
       updateTournament(t){
         if(!room||!currentTournament||currentTournament.id!==t.id)return Promise.resolve();
-        currentTournament.rounds=t.rounds;
+        currentTournament.rounds=t.rounds;currentTournament.config=t.config;
         return publishLatest();
       },
       async stop() {
@@ -182,20 +182,31 @@ function indicator(g,p,i){
         const playerStats=p=>{if(!p)return '<p>Select a player.</p>';const s=p.stats||{};return `<div class="tour-watch-stats"><h2>${escapeHTML(p.label)}</h2><div class="tour-watch-statgrid"><div><b>${s.games??'—'}</b><small>Recorded games</small></div><div><b>${typeof s.average==='number'?s.average.toFixed(2):'—'}</b><small>3-dart average</small></div><div><b>${s.oneEighties??'—'}</b><small>180s</small></div><div><b>${s.high??'—'}</b><small>Highest turn</small></div></div></div>`};
         // Same card geometry and connector paths as the Host's bracket page.
         const bracket=(()=>{
-          const rounds=t.rounds||[],width=226,gap=56,step=104;
+          const rounds=t.rounds||[],width=226,gap=56,knockout=t.config?.elimination==='knockout',step=knockout?166:104;
           if(!rounds.length)return '<p>Waiting for the Host to prepare the bracket.</p>';
-          const height=Math.max(190,rounds[0].length*step+54),fullWidth=rounds.length*(width+gap)+20;
-          const center=(r,i)=>step*(Math.pow(2,r)*(i+.5))+16;
+          const fullWidth=rounds.length*(width+gap)+20;
+          const centers=[];
+          for(let r=0;r<rounds.length;r++){
+            centers[r]=[];
+            for(let i=0;i<rounds[r].length;i++){
+              if(!knockout)centers[r][i]=104*(Math.pow(2,r)*(i+.5))+16;
+              else if(r===0)centers[r][i]=step*(i+.5)+20;
+              else{const sources=rounds[r][i].sourceMatches||[];centers[r][i]=sources.length?sources.reduce((a,k)=>a+centers[r-1][k],0)/sources.length:step*(i+.5)+20}
+            }
+          }
+          const height=Math.max(190,rounds[0].length*(knockout?step:104)+54);
           const lines=[];
           for(let r=0;r<rounds.length-1;r++)for(let i=0;i<rounds[r].length;i++){
-            const m=rounds[r][i],x1=r*(width+gap)+width+12,x2=(r+1)*(width+gap)-8;
-            const y1=center(r,i),y2=center(r+1,Math.floor(i/2));
+            const m=rounds[r][i],target=knockout?m.next?.match:Math.floor(i/2);if(target==null)continue;
+            const x1=r*(width+gap)+width+12,x2=(r+1)*(width+gap)-8;
+            const y1=centers[r][i],y2=centers[r+1][target];
             lines.push(`<path d="M${x1} ${y1} H${x1+gap/2} V${y2} H${x2}" stroke="${m.winner?'#2ce8ad':'#517a9f'}" class="${m.winner?'tour-line-winner':''}"/>`);
           }
           const cards=rounds.map((round,r)=>round.map((m,i)=>{
-            const completed=!!m.winner,ready=!!m.a&&!!m.b&&!completed;
+            const people=Array.isArray(m.players)?m.players:[m.a,m.b],completed=!!m.winner,ready=people.length>=2&&people.every(Boolean)&&!completed;
             const person=p=>`<span class="tour-node-person ${completed&&m.winner?.id===p?.id?'tour-node-victor':''}">${p?escapeHTML(p.label):'To be determined'}${completed&&m.winner?.id===p?.id?' ✓':''}</span>`;
-            return `<div class="tour-node ${completed?'tour-node-done':''} ${ready?'tour-node-ready':''}" style="left:${r*(width+gap)+12}px;top:${center(r,i)-37}px;width:${width}px"><small>${r===rounds.length-1?'FINAL':`ROUND ${r+1}`} · M${i+1}${m.status==='bye'?' · BYE':completed?' · FINISHED':''}</small>${person(m.a)}${person(m.b)}${m.score?`<small>${escapeHTML(m.score)}</small>`:''}</div>`;
+            const top=centers[r][i]-(knockout?(people.length*26+27)/2:37);
+            return `<div class="tour-node ${knockout?'tour-node-multi':''} ${completed?'tour-node-done':''} ${ready?'tour-node-ready':''}" style="left:${r*(width+gap)+12}px;top:${top}px;width:${width}px"><small>${r===rounds.length-1?'FINAL':`ROUND ${r+1}`} · M${i+1}${m.status==='bye'?' · BYE':completed?' · FINISHED':''}</small>${people.map(person).join('')}${m.score?`<small>${escapeHTML(m.score)}</small>`:''}</div>`;
           }).join('')).join('');
           return `<div class="tour-bracket-scroll tour-spectator-scroll" tabindex="0"><div class="tour-bracket-canvas" style="width:${fullWidth}px;height:${height}px"><svg class="tour-bracket-lines" viewBox="0 0 ${fullWidth} ${height}">${lines.join('')}</svg>${cards}</div></div>`;
         })();
@@ -206,7 +217,7 @@ function indicator(g,p,i){
         const timer=`<strong class="tour-screen-timer" id="tourTimer">${timerEnds?tourCountdown(timerEnds):'Waiting for Host'}</strong>`;
         const oldScroll=content.querySelector('.tour-spectator-scroll'),oldX=oldScroll?.scrollLeft||0,oldY=oldScroll?.scrollTop||0;
         const title=mode==='waiting'?'NEXT MATCH':'BREAK TIME';
-        content.innerHTML=`<div class="tour-watch-shell">${mode==='intro'?`<div class="tour-watch-intro"><div class="tour-intro-trophy">🏆</div><div class="tour-intro-eyebrow">WELCOME TO</div><h1>DARTHS</h1><h2>${escapeHTML(t.name)}</h2><p>${players.length} players · Single Elimination</p><span>Waiting for the Host to display the bracket</span></div>`:mode==='upnext'?`<div class="tour-watch-upnext"><div class="tour-upnext-label">🎯 UP NEXT · ROUND ${t.upNext?.round||1} · MATCH ${t.upNext?.match||1}</div><div class="tour-watch-versus"><strong>${escapeHTML(t.upNext?.a||'Player A')}</strong><span>VS</span><strong>${escapeHTML(t.upNext?.b||'Player B')}</strong></div><p>MATCH STARTS WHEN THE HOST IS READY</p><strong class="tour-screen-timer" id="tourTimer">${t.upNext?.started?tourCountdown(t.upNext?.endsAt):tourCountdown(Date.now()+(t.upNext?.remainingMs||300000))}</strong><p id="tourUpNextStatus">${t.upNext?.started?(t.upNext?.endsAt?'Countdown running':'Countdown paused'):'Waiting for countdown'}</p></div>`:mode==='waiting'||mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>${mode==='waiting'?'🎯':'☕'}</div><h2>${title}</h2>${timer}<p>${timerEnds&&timerEnds<=Date.now()?'READY FOR NEXT MATCH':mode==='waiting'?'Players, please prepare for your next match.':'We will be back shortly.'}</p></div>`:mode==='stats'?`<div class="tour-watch-back">PLAYER STATISTICS</div>${playerStats(selected)}`:`<div class="tour-spectator-bracket" data-bracket-fit="${bracketFit}"><h2>🏆 ${escapeHTML(t.name)}</h2>${bracket}</div>`}</div>`;
+        content.innerHTML=`<div class="tour-watch-shell">${mode==='intro'?`<div class="tour-watch-intro"><div class="tour-intro-trophy">🏆</div><div class="tour-intro-eyebrow">WELCOME TO</div><h1>DARTHS</h1><h2>${escapeHTML(t.name)}</h2><p>${players.length} players · ${t.config?.elimination==='knockout'?'Knockout':'Standard'} Elimination</p><span>Waiting for the Host to display the bracket</span></div>`:mode==='upnext'?`<div class="tour-watch-upnext"><div class="tour-upnext-label">🎯 UP NEXT · ROUND ${t.upNext?.round||1} · MATCH ${t.upNext?.match||1}</div><div class="tour-watch-versus tour-watch-versus-multi">${(t.upNext?.players||[t.upNext?.a||'Player A',t.upNext?.b||'Player B']).map((p,i,arr)=>`<strong>${escapeHTML(p)}</strong>${i<arr.length-1?'<span>VS</span>':''}`).join('')}</div><p>MATCH STARTS WHEN THE HOST IS READY</p><strong class="tour-screen-timer" id="tourTimer">${t.upNext?.started?tourCountdown(t.upNext?.endsAt):tourCountdown(Date.now()+(t.upNext?.remainingMs||300000))}</strong><p id="tourUpNextStatus">${t.upNext?.started?(t.upNext?.endsAt?'Countdown running':'Countdown paused'):'Waiting for countdown'}</p></div>`:mode==='waiting'||mode==='break'||mode==='commercial'?`<div class="tour-watch-pause"><div>${mode==='waiting'?'🎯':'☕'}</div><h2>${title}</h2>${timer}<p>${timerEnds&&timerEnds<=Date.now()?'READY FOR NEXT MATCH':mode==='waiting'?'Players, please prepare for your next match.':'We will be back shortly.'}</p></div>`:mode==='stats'?`<div class="tour-watch-back">PLAYER STATISTICS</div>${playerStats(selected)}`:`<div class="tour-spectator-bracket" data-bracket-fit="${bracketFit}"><h2>🏆 ${escapeHTML(t.name)}</h2>${bracket}</div>`}</div>`;
         const newScroll=content.querySelector('.tour-spectator-scroll');
         if(newScroll){
           const canvas=newScroll.querySelector('.tour-bracket-canvas');
@@ -272,7 +283,7 @@ function indicator(g,p,i){
           content.insertAdjacentHTML('beforeend',`<div class="watch-modal" role="dialog" aria-label="Break Time"><div class="watch-modal-panel" style="text-align:center"><h1>☕ ${g.breakTime.template==='commercial'?'COMMERCIAL BREAK':'BREAK TIME'}</h1><p>${escapeHTML(g.breakTime.message||'Please stand by')}</p>${minutes!==null?`<h1>${minutes} min</h1>`:''}<p>Live match will resume shortly</p></div></div>`);
         }
                 if(g.tournamentBracket?.length){
-          const tournamentSummary=g.tournamentBracket.map((round,r)=>`<div><b>${r===g.tournamentBracket.length-1?'Final':`Round ${r+1}`}</b>: ${round.map(m=>`${escapeHTML(m.a?.label||'TBD')} vs ${escapeHTML(m.b?.label||'TBD')}${m.winner?' → '+escapeHTML(m.winner.label):''}`).join(' · ')}</div>`).join('');
+          const tournamentSummary=g.tournamentBracket.map((round,r)=>`<div><b>${r===g.tournamentBracket.length-1?'Final':`Round ${r+1}`}</b>: ${round.map(m=>`${(m.players||[m.a,m.b]).map(c=>escapeHTML(c?.label||'TBD')).join(' vs ')}${m.winner?' → '+escapeHTML(m.winner.label):''}`).join(' · ')}</div>`).join('');
           content.insertAdjacentHTML('beforeend',`<details class="watch-tournament"><summary>🏆 ${escapeHTML(g.tournamentName||'Tournament')} — View Bracket</summary>${tournamentSummary}</details>`);
         }
                 // A spectator is read-only: host drives winner/results phase via game.resultView.
