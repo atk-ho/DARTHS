@@ -183,7 +183,7 @@ body.many-players #scoreCards .sets-legs{font-size:10px}
 </style><style id="darths-dialog-style">
 #darthsDialog{position:fixed;inset:0;z-index:25000;background:rgba(1,8,20,.82);display:flex;align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(5px)}
 #darthsDialog.hidden{display:none!important}.dd-panel{width:min(420px,100%);padding:26px 20px 22px;border:1px solid #345a7e;border-radius:20px;background:linear-gradient(155deg,#132c48,#09192d);box-shadow:0 25px 75px #000b;color:#fff;text-align:center}.dd-icon{display:grid;place-items:center;margin:0 auto 14px;width:58px;height:58px;border-radius:50%;background:#44331b;color:#ffc85c;font-size:28px}.dd-panel h2{margin:0 0 10px;font-size:21px}.dd-panel p{color:#bfd0e2;font-size:14px;line-height:1.55;margin:0 0 20px}.dd-actions{display:flex;gap:10px}.dd-actions button{flex:1;min-width:0;padding:13px 8px;font-size:14px;font-weight:700}.dd-cancel{background:#213d5b;border:1px solid #4c6884}.dd-confirm{background:#df4257}.dd-primary{background:#1679e7}.dd-panel input{margin:0 0 18px;text-align:center}
-</style><link rel="stylesheet" href="./tournament-create-fix.css?v=20261025-ui-match-1"><link rel="stylesheet" href="./tournament-hub-refresh.css?v=20261025-1"></head><body><header><h1><img src="./icons/icon-192.png" alt="" class="brand-icon"> Darts</h1><span class="pill" id="status">Ready</span></header><main><nav class="tabs" aria-label="Main navigation">
+</style><link rel="stylesheet" href="./tournament-create-fix.css?v=20261025-ui-match-1"><link rel="stylesheet" href="./tournament-hub-refresh.css?v=20261025-1"><link rel="stylesheet" href="./tournament-teams.css?v=20261030-team1"></head><body><header><h1><img src="./icons/icon-192.png" alt="" class="brand-icon"> Darts</h1><span class="pill" id="status">Ready</span></header><main><nav class="tabs" aria-label="Main navigation">
 <button type="button" data-tab="home" class="active" aria-label="Home"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg></span><span class="tab-label">Home</span></button>
 <button type="button" data-tab="roster" aria-label="Roster"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3h8v5a4 4 0 0 1-8 0V3ZM8 5H4v2a4 4 0 0 0 4 4m8-6h4v2a4 4 0 0 1-4 4M12 12v5m-4 4h8m-7-4h6"/></svg></span><span class="tab-label">Tournament</span></button>
 <button type="button" data-tab="players" aria-label="Players"><span class="tab-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20v-2a6 6 0 0 1 12 0v2H3Zm13-14a3 3 0 0 1 0 6m1 3a5 5 0 0 1 4 5"/></svg></span><span class="tab-label">Players</span></button>
@@ -233,7 +233,7 @@ function leadClass(players,key,i){
 function indicator(g,p,i){
  return `<div class="win-indicators">${['sets','legs'].map((key,k)=>`<div class="win-group"><small>${k?'L':'S'}</small><span class="win-box ${leadClass(g.participants,key,i)}">${Number(p[key])||0}</span></div>`).join('')}</div>`;
 }
-function renderGame(){const g=db.game;$('setup').classList.toggle('hidden',!!g);$('live').classList.toggle('hidden',!g);$('status').textContent=g?'Playing':'Ready';document.body.classList.toggle('game-active',!!g);document.body.classList.toggle('many-players',!!g&&g.participants.length>=4);if(!g)return;const p=g.participants[g.current];$('matchTitle').textContent=`${g.points} Darts`; $('matchOverview').innerHTML=`<div class="overview-grid"><div><small>START SCORE</small><strong>${g.points}</strong></div><div><small>CHECK-IN</small><strong>${esc(g.checkin[0].toUpperCase()+g.checkin.slice(1))}</strong></div><div><small>CHECKOUT</small><strong>${esc(g.checkout[0].toUpperCase()+g.checkout.slice(1))}</strong></div></div>`;$('roundInfo').textContent=`Leg ${g.legNumber} · Set ${g.setNumber} · Round ${g.round} · ${g.format==='best'?'Best of':'First to'} ${g.legs} legs / ${g.sets} sets`;$('scoreCards').innerHTML=g.participants.map((x,i)=>{const shown=i===g.current?g.turn:(x.last||[]);const isBust=i===g.current?g.turn.some(d=>d.bust):!!x.lastBust;const total=isBust?0:shown.reduce((sum,d)=>sum+(d.score||0),0);const avg=x.stats.darts?(x.stats.scored/x.stats.darts*3).toFixed(2):'0.00';return `<div class="score-card ${g.current===i?'current':''} ${isBust?'busted':''}"><div class="score-layout"><div class="score-left"><div class="score">${x.remaining}</div><div class="player-label">${esc(x.label)}</div></div>${indicator(g,x,i)}<div class="score-middle"><div class="dart-slots">${Array.from({length:3},(_,j)=>`<div class="dart-slot">${shown[j]?esc(shown[j].label):''}</div>`).join('')}</div><div class="turn-total">${total}</div></div><div class="score-right"><div class="mini-stat"><span class="mini-icon">🎯</span>${x.stats.darts}</div><div class="mini-stat"><span class="mini-icon">⊘</span>${avg}</div></div></div></div>`}).join('');$('turnTitle').textContent=g.mode==='teams'?`${p.label} — ${name(p.members[p.memberTurn%p.members.length])}'s turn`:`${p.label}'s turn`;$('turnDarts').textContent=`Darts: ${g.turn.map(d=>d.label).join(' · ')||'—'} (${g.turn.reduce((a,d)=>a+d.score,0)} points)`;document.querySelectorAll('[data-mult]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.mult)===multiplier));window.DARTHS_APPLY_HOST_LAYOUT?.()}
+function renderGame(){const g=db.game;$('setup').classList.toggle('hidden',!!g);$('live').classList.toggle('hidden',!g);$('status').textContent=g?'Playing':'Ready';document.body.classList.toggle('game-active',!!g);document.body.classList.toggle('many-players',!!g&&g.participants.length>=4);if(!g)return;const p=g.participants[g.current];$('matchTitle').textContent=`${g.points} Darts`; $('matchOverview').innerHTML=`<div class="overview-grid"><div><small>START SCORE</small><strong>${g.points}</strong></div><div><small>CHECK-IN</small><strong>${esc(g.checkin[0].toUpperCase()+g.checkin.slice(1))}</strong></div><div><small>CHECKOUT</small><strong>${esc(g.checkout[0].toUpperCase()+g.checkout.slice(1))}</strong></div></div>`;$('roundInfo').textContent=`Leg ${g.legNumber} · Set ${g.setNumber} · Round ${g.round} · ${g.format==='best'?'Best of':'First to'} ${g.legs} legs / ${g.sets} sets`;$('scoreCards').innerHTML=g.participants.map((x,i)=>{const shown=i===g.current&&g.turn.length?g.turn:x.last;const isBust=i===g.current&&g.turn.length?g.turn.some(d=>d.bust):!!x.lastBust;const total=isBust?0:shown.reduce((sum,d)=>sum+(d.score||0),0);const avg=x.stats.darts?(x.stats.scored/x.stats.darts*3).toFixed(2):'0.00';return `<div class="score-card ${g.current===i?'current':''} ${isBust?'busted':''}"><div class="score-layout"><div class="score-left"><div class="score">${x.remaining}</div><div class="player-label">${esc(x.label)}</div></div>${indicator(g,x,i)}<div class="score-middle"><div class="dart-slots">${Array.from({length:3},(_,j)=>`<div class="dart-slot">${shown[j]?esc(shown[j].label):''}</div>`).join('')}</div><div class="turn-total">${total}</div></div><div class="score-right"><div class="mini-stat"><span class="mini-icon">🎯</span>${x.stats.darts}</div><div class="mini-stat"><span class="mini-icon">⊘</span>${avg}</div></div></div></div>`}).join('');$('turnTitle').textContent=g.mode==='teams'?`${p.label} — ${name(p.members[p.memberTurn%p.members.length])}'s turn`:`${p.label}'s turn`;$('turnDarts').textContent=`Darts: ${g.turn.map(d=>d.label).join(' · ')||'—'} (${g.turn.reduce((a,d)=>a+d.score,0)} points)`;document.querySelectorAll('[data-mult]').forEach(b=>b.classList.toggle('selected',Number(b.dataset.mult)===multiplier));window.DARTHS_APPLY_HOST_LAYOUT?.()}
 function start(){let ids=[...selected].filter(id=>db.players.some(p=>p.id===id));if(ids.length<2)return toast('Select at least 2 players');let mode=$('mode').value,size=Number($('teamSize').value);if(mode==='teams'&&(ids.length<4||ids.length%size!==0||ids.length/size<2))return toast(`Select complete teams of ${size} (at least 2 teams)`);let points=Number($('points').value),sets=Number($('sets').value),legs=Number($('legs').value);if(!Number.isInteger(sets)||sets<1||sets>21||!Number.isInteger(legs)||legs<1||legs>21)return toast('Sets and legs must be 1–21');let groups=mode==='teams'?Array.from({length:ids.length/size},(_,i)=>ids.slice(i*size,(i+1)*size)):ids.map(id=>[id]);pendingGame={points,sets,legs,mode,format:$('format').value,checkin:$('checkin').value,checkout:$('checkout').value,current:0,round:1,setNumber:1,legNumber:1,legSerial:0,turn:[],participants:groups.map((members,i)=>({members,label:mode==='teams'?`Team ${i+1}: ${members.map(name).join(', ')}`:name(members[0]),remaining:points,entered:$('checkin').value==='straight',sets:0,legs:0,last:[],stats:statDefaults(),memberTurn:0}))};$('corkOrder').innerHTML=pendingGame.participants.map((p,i)=>`<div class="cork-entry"><span>${esc(p.label)}</span><label>Rank <select data-cork="${i}">${pendingGame.participants.map((_,j)=>`<option value="${j+1}" ${i===j?'selected':''}>${j+1}</option>`).join('')}</select></label></div>`).join('');$('start').disabled=true;showTurnOrder();}
 function confirmCork(){if(!pendingGame)return;const ranks=turnOrder.map((_,i)=>i+1);pendingGame.participants=turnOrder.map(i=>pendingGame.participants[i]);if(new Set(ranks).size!==ranks.length)return toast('Each player/team must have a unique rank. Re-throw ties.');pendingGame.participants=pendingGame.participants.map((p,i)=>({...p,corkRank:i+1}));db.game=pendingGame;window.DARTHS_AUDIO?.stopMusic();db.game.audioEvent={id:`start:${Date.now()}`,type:'start',at:Date.now()};window.DARTHS_CAPTURE_LAYOUTS?.(db.game);pendingGame=null;$('corkPanel').classList.add('hidden');$('start').disabled=false;closeFeature();snapshots=[];save();renderGame()}
 function validOut(d,mode){return mode==='straight'||(mode==='double'&&(d.mult===2||d.bull))||(mode==='master'&&(d.mult>=2||d.bull))}function validIn(d,mode){return mode==='straight'||(mode==='double'&&(d.mult===2||d.bull))||(mode==='master'&&(d.mult>=2||d.bull))}
@@ -464,7 +464,7 @@ function tourKnockoutGroups(n){
  return Array.from({length:groups},(_,i)=>base+(i<extra?1:0));
 }
 function makeKnockoutTournament(name,ids,config){
- const entrants=ids.map(id=>({id,label:nameOfCompetitor(id)}));
+ const entrants=ids.map(id=>typeof id==='object'?{...id,members:[...id.members]}:{id,label:nameOfCompetitor(id)});
  const rounds=[];let count=entrants.length,r=0;
  while(count>1){
   const groups=tourKnockoutGroups(count);
@@ -489,7 +489,7 @@ function makeKnockoutTournament(name,ids,config){
 function makeTournament(name,ids,config){
  if(config.elimination==='knockout')return makeKnockoutTournament(name,ids,config);
  const size=2**Math.ceil(Math.log2(ids.length));
- const entrants=ids.map(id=>({id,label:nameOfCompetitor(id)}));
+ const entrants=ids.map(id=>typeof id==='object'?{...id,members:[...id.members]}:{id,label:nameOfCompetitor(id)});
  const slots=Array(size).fill(null),playCount=2*(ids.length-size/2);
  for(let i=0;i<playCount;i++)slots[i]=entrants[ids.length-playCount+i];
  for(let i=0;i<ids.length-playCount;i++)slots[playCount+i*2]=entrants[i];
@@ -515,7 +515,7 @@ function advanceWinner(t,r,i,winner){
 
 function tourLocked(t){return !!t.started||t.rounds.some(round=>round.some(m=>m.status==='complete'))}
 function tourStats(id){
- const stats=db.history.flatMap(h=>h.stats||[]).filter(x=>Number(x.id)===Number(id));
+ const ids=Array.isArray(id)?id.map(Number):[Number(id)];const stats=db.history.flatMap(h=>h.stats||[]).filter(x=>ids.includes(Number(x.id)));
  const darts=stats.reduce((a,x)=>a+(x.darts||0),0),scored=stats.reduce((a,x)=>a+(x.scored||0),0);
  const games=stats.length,average=darts?scored*3/darts:null;
  return {games,average,darts,oneEighties:stats.reduce((a,x)=>a+(x.oneEighties||0),0),high:Math.max(0,...stats.map(x=>x.high||0)),busts:stats.reduce((a,x)=>a+(x.busts||0),0)};
@@ -531,7 +531,7 @@ function tourRandomize(t,balanced){
  let slots=tourPlayers(t);
  if(balanced){
    // Ranked serpentine seeding separates experienced high-average players. Unknown averages stay unranked.
-   slots.sort((a,b)=>{const sa=tourStats(a.id),sb=tourStats(b.id);return (sb.average??-1)-(sa.average??-1)||sb.games-sa.games});
+   slots.sort((a,b)=>{const sa=tourStats(a.members||a.id),sb=tourStats(b.members||b.id);return (sb.average??-1)-(sa.average??-1)||sb.games-sa.games});
    const ordered=[];while(slots.length){ordered.push(slots.shift());if(slots.length)ordered.push(slots.pop())}slots=ordered;
  }else{
    for(let i=slots.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[slots[i],slots[j]]=[slots[j],slots[i]]}
@@ -608,7 +608,7 @@ async function tourAskLive(t){
  const ok=await window.DARTHS_DIALOG({title:'Make Tournament Live?',message:'Share the tournament bracket with spectators. During matches, the same link shows your existing live scoreboard.',confirm:'Go Live',cancel:'Keep Private'});
  if(ok)await tourGoLive(t);
 }
-function tourStatCard(c){const s=tourStats(c.id);return `<div class="tour-stat-card"><h3>${esc(c.label)}</h3><div class="tour-stat-grid"><div><b>${s.games}</b><small>Recorded games</small></div><div><b>${s.average===null?'—':s.average.toFixed(2)}</b><small>3-dart average</small></div><div><b>${s.oneEighties}</b><small>180s</small></div><div><b>${s.high}</b><small>Highest turn</small></div></div><p class="muted">Statistics reflect saved match history on this device.</p></div>`}
+function tourStatCard(c){const s=tourStats(c.members||c.id);return `<div class="tour-stat-card"><h3>${esc(c.label)}</h3><div class="tour-stat-grid"><div><b>${s.games}</b><small>Recorded games</small></div><div><b>${s.average===null?'—':s.average.toFixed(2)}</b><small>3-dart average</small></div><div><b>${s.oneEighties}</b><small>180s</small></div><div><b>${s.high}</b><small>Highest turn</small></div></div><p class="muted">Statistics reflect saved match history on this device.</p></div>`}
 
 function renderRoster(){
  const box=$('tournamentList');if(!box)return;
@@ -626,6 +626,11 @@ $('tourManageRosters').onclick=manageTourRosters;
 $('newTournament').onclick=()=>{
  openFeature('Create Tournament',`<div class="tour-create-form">
  <label>Tournament Name<input id="tourName" value="DARTHS Championship"></label>
+ <fieldset class="tour-format-choice"><legend>Tournament Mode</legend>
+ <label><input type="radio" name="tourMode" value="individual" checked> <span><b>Individual</b><small>Players compete separately</small></span></label>
+ <label><input type="radio" name="tourMode" value="teams"> <span><b>Team Battle</b><small>2v2 to 5v5 · shared team score</small></span></label></fieldset>
+ <div id="tourTeamControls" class="hidden"><label>Players per Team<select id="tourTeamSize"><option value="2">2v2</option><option value="3">3v3</option><option value="4">4v4</option><option value="5">5v5</option></select></label>
+ <p class="muted">Select complete teams below. Players alternate between teams and rotate within each team.</p><div id="tourTeamAssignments"></div></div>
  <fieldset class="tour-format-choice"><legend>Elimination Format</legend>
  <label><input type="radio" name="tourElimination" value="standard" checked> <span><b>Standard Elimination</b><small>1v1 · BYEs supported</small></span></label>
  <label><input type="radio" name="tourElimination" value="knockout"> <span><b>Knockout Elimination</b><small>2–4 players per match · No BYEs</small></span></label></fieldset>
@@ -642,14 +647,34 @@ $('newTournament').onclick=()=>{
  const ids=[...document.querySelectorAll('.tour-player:checked')].map(el=>Number(el.value));if(ids.length<2)return toast('Select at least 2 players');
  const sets=Number($('tourSets').value),legs=Number($('tourLegs').value);if(!Number.isInteger(sets)||!Number.isInteger(legs)||sets<1||sets>21||legs<1||legs>21)return toast('Sets and legs must be 1–21');
  const elimination=document.querySelector('input[name="tourElimination"]:checked')?.value||'standard';
- const t=makeTournament($('tourName').value.trim()||'Championship',ids,{points:Number($('tourPoints').value),sets,legs,format:$('tourFormat').value,elimination});
+ const mode=document.querySelector('input[name="tourMode"]:checked')?.value||'individual';
+ let entrants=ids;
+ if(mode==='teams'){
+  const size=Number($('tourTeamSize').value),assigned=[...document.querySelectorAll('.tour-team-assignment')].map(x=>({id:Number(x.dataset.player),team:Number(x.value)}));
+  if(ids.length<size*2||ids.length%size!==0)return toast(`Select at least 2 complete teams of ${size}`);
+  const count=ids.length/size;
+  const teams=Array.from({length:count},(_,i)=>({id:`team-${Date.now()}-${i}`,label:`Team ${i+1}`,members:assigned.filter(a=>a.team===i).map(a=>a.id)}));
+  if(teams.some(team=>team.members.length!==size))return toast(`Each team must have exactly ${size} players`);
+  entrants=teams;
+ }
+ const t=makeTournament($('tourName').value.trim()||'Championship',entrants,{points:Number($('tourPoints').value),sets,legs,format:$('tourFormat').value,elimination,mode,teamSize:mode==='teams'?Number($('tourTeamSize').value):1});
  closeFeature();renderRoster();showTournament(t.id);tourAskLive(t)
  }}]);
- const refreshCount=()=>{$('tourSelectedCount').textContent=document.querySelectorAll('.tour-player:checked').length+' selected'};
+ const refreshCount=()=>{
+  const chosen=[...document.querySelectorAll('.tour-player:checked')];
+  $('tourSelectedCount').textContent=chosen.length+' selected';
+  const teams=document.querySelector('input[name="tourMode"]:checked')?.value==='teams';
+  $('tourTeamControls').classList.toggle('hidden',!teams);
+  const size=Number($('tourTeamSize').value),count=Math.ceil(chosen.length/size);
+  $('tourTeamAssignments').innerHTML=teams?chosen.map((el,i)=>`<label class="tour-team-assignment-row">${esc(nameOfCompetitor(Number(el.value)))}<select class="tour-team-assignment" data-player="${el.value}">${Array.from({length:Math.max(2,count)},(_,j)=>`<option value="${j}" ${j===Math.floor(i/size)?'selected':''}>Team ${j+1}</option>`).join('')}</select></label>`).join(''):'';
+  $('tourFormatHint').textContent=teams?'Team Battle: Teams share scores. Each teammate throws three darts in rotation. Standard supports BYEs; Knockout supports 2–4 teams per match.':'Individual tournament with your selected elimination format.';
+ };
+ document.querySelectorAll('input[name="tourMode"]').forEach(el=>el.onchange=refreshCount);
+ $('tourTeamSize').onchange=refreshCount;
  document.querySelectorAll('.tour-player').forEach(el=>el.onchange=refreshCount);
  $('tourRoster').onchange=()=>{const r=db.rosters.find(x=>x.id===$('tourRoster').value);document.querySelectorAll('.tour-player').forEach(el=>el.checked=!r||r.ids.includes(Number(el.value)));refreshCount()};
  document.querySelectorAll('input[name="tourElimination"]').forEach(el=>el.onchange=()=>{$('tourFormatHint').textContent=el.value==='knockout'?'Knockout: 2–4 players compete in each match. Only one advances. No BYEs.':'Standard: 1v1 matches with automatic BYEs.'});
- document.querySelectorAll('[data-tour-step]').forEach(btn=>btn.onclick=()=>{const [id,step]=btn.dataset.tourStep.split(':');const el=$(id);el.value=Math.max(1,Math.min(21,(Number(el.value)||1)+Number(step)))});
+ refreshCount();document.querySelectorAll('[data-tour-step]').forEach(btn=>btn.onclick=()=>{const [id,step]=btn.dataset.tourStep.split(':');const el=$(id);el.value=Math.max(1,Math.min(21,(Number(el.value)||1)+Number(step)))});
 };
 function tourBracketMarkup(t, spectator=false){
  const rounds=t.rounds,knockout=tourIsKnockout(t),width=226,gap=56,step=knockout?166:104;
@@ -692,7 +717,7 @@ function tourRefreshClock(){const el=$('tourHostClock');if(el)el.textContent=tou
 setInterval(tourRefreshClock,1000);
 function tourStatPreview(c){
  if(!c)return '<p class="muted">Select a player to preview statistics.</p>';
- const s=tourStats(c.id);
+ const s=tourStats(c.members||c.id);
  return `<div class="tour-stat-preview"><h3>${esc(c.label)}</h3><div class="tour-stat-grid"><div><b>${s.games??'—'}</b><small>Games</small></div><div><b>${typeof s.average==='number'?s.average.toFixed(2):'—'}</b><small>3-Dart Avg</small></div><div><b>${s.oneEighties??0}</b><small>180s</small></div><div><b>${s.high??0}</b><small>Highest Turn</small></div></div></div>`;
 }
 function tourMatchDetails(t,r,i){
@@ -829,11 +854,17 @@ function tourOrderPage(id,r,i,order=null){
  const people=order||tourMatchEntrants(m).filter(Boolean);
  const ordinal=['first','second','third','fourth'];
  page.innerHTML=`<div class="tour-page-top"><button id="tourOrderBack">← Countdown</button><span class="tour-broadcast-indicator">ROUND ${r+1} · MATCH ${i+1}</span></div><div class="tour-order-page"><h2>🎯 Determine Throwing Order</h2><p class="muted">Manually arrange players after their bullseye throws. First on the list throws first.</p>
- <div class="tour-order-list">${people.map((c,k)=>`<div class="tour-order-player"><b>${k+1}</b><span>${esc(c.label)}<small>Throws ${ordinal[k]||'next'}</small></span><button data-tour-up="${k}" ${k===0?'disabled':''} aria-label="Move ${esc(c.label)} up">↑</button><button data-tour-down="${k}" ${k===people.length-1?'disabled':''} aria-label="Move ${esc(c.label)} down">↓</button></div>`).join('')}</div>
+ <div class="tour-order-list">${people.map((c,k)=>`<div class="tour-order-player"><b>${k+1}</b><span>${esc(c.label)}<small>${c.members?.length?c.members.map(id=>nameOfCompetitor(id)).join(' → '):`Throws ${ordinal[k]||'next'}`}</small></span><button data-tour-up="${k}"  ${k===0?'disabled':''} aria-label="Move ${esc(c.label)} up">↑</button><button data-tour-down="${k}" ${k===people.length-1?'disabled':''} aria-label="Move ${esc(c.label)} down">↓</button></div>`).join('')}</div>
  <button class="primary" id="tourOrderConfirm">▶ Confirm & Start Match</button></div>`;
  $('tourOrderBack').onclick=()=>{if(tourPending)tourCountdownPage();else{tourSelectedMatch=null;showTournament(id)}};
  page.querySelectorAll('[data-tour-up]').forEach(b=>b.onclick=()=>{const k=Number(b.dataset.tourUp);[people[k-1],people[k]]=[people[k],people[k-1]];tourOrderPage(id,r,i,people)});
  page.querySelectorAll('[data-tour-down]').forEach(b=>b.onclick=()=>{const k=Number(b.dataset.tourDown);[people[k+1],people[k]]=[people[k],people[k+1]];tourOrderPage(id,r,i,people)});
+ if(t.config.mode==='teams'){
+  const list=page.querySelector('.tour-order-list');
+  list.insertAdjacentHTML('afterend',`<p class="muted">The first team above throws first. Arrange each team's internal throwing order:</p>${people.map((team,k)=>`<div class="tour-team-order"><b>${esc(team.label)}</b>${team.members.map((member,j)=>`<div class="tour-team-order-row"><span>${j+1}. ${esc(nameOfCompetitor(member))}</span><button data-member-up="${k}:${j}" ${j===0?'disabled':''}>↑</button><button data-member-down="${k}:${j}" ${j===team.members.length-1?'disabled':''}>↓</button></div>`).join('')}</div>`).join('')}`);
+  page.querySelectorAll('[data-member-up]').forEach(btn=>btn.onclick=()=>{const [k,j]=btn.dataset.memberUp.split(':').map(Number);[people[k].members[j-1],people[k].members[j]]=[people[k].members[j],people[k].members[j-1]];tourOrderPage(id,r,i,people)});
+  page.querySelectorAll('[data-member-down]').forEach(btn=>btn.onclick=()=>{const [k,j]=btn.dataset.memberDown.split(':').map(Number);[people[k].members[j+1],people[k].members[j]]=[people[k].members[j],people[k].members[j+1]];tourOrderPage(id,r,i,people)});
+ }
  $('tourOrderConfirm').onclick=()=>startTournamentMatch(id,r,i,people);
 }
 async function startTournamentMatch(id,r,i,ordered=null){
@@ -843,14 +874,14 @@ async function startTournamentMatch(id,r,i,ordered=null){
  if(!ordered){tourOrderPage(id,r,i);return}
  if(db.game&&!db.game.finished&&!await window.DARTHS_DIALOG({title:'Replace Current Match?',message:'Your unfinished match will be replaced by the tournament match.',confirm:'Replace Match',cancel:'Keep Playing'}))return;
  tourPending=null;tourTimerEndsAt=null;t.started=true;const cfg=t.config;
- const participants=ordered.map(c=>({members:[c.id],label:c.label,remaining:cfg.points,entered:true,sets:0,legs:0,last:[],stats:statDefaults(),memberTurn:0}));
- db.game={points:cfg.points,sets:cfg.sets,legs:cfg.legs,format:cfg.format,mode:'ffa',checkin:'straight',checkout:'double',current:0,round:1,setNumber:1,legNumber:1,legSerial:0,turn:[],participants,tournamentId:id,tournamentMatchId:`${r}:${i}`,tournamentName:t.name,tournamentBracket:t.rounds,tournamentPlayers:tourPlayers(t).map(c=>({...c,stats:tourStats(c.id)}))};
+ const participants=ordered.map(c=>({teamId:c.id,members:c.members?.length?[...c.members]:[c.id],label:c.label,remaining:cfg.points,entered:true,sets:0,legs:0,last:[],stats:statDefaults(),memberTurn:0}));
+ db.game={points:cfg.points,sets:cfg.sets,legs:cfg.legs,format:cfg.format,mode:cfg.mode==='teams'?'teams':'ffa',checkin:'straight',checkout:'double',current:0,round:1,setNumber:1,legNumber:1,legSerial:0,turn:[],participants,tournamentId:id,tournamentMatchId:`${r}:${i}`,tournamentName:t.name,tournamentBracket:t.rounds,tournamentPlayers:tourPlayers(t).map(c=>({...c,stats:tourStats(c.id)}))};
  window.DARTHS_CAPTURE_LAYOUTS?.(db.game);snapshots=[];closeFeature();switchTab('home');save();renderGame();tourScreen='match';window.DARTHS_SYNC?.setTournamentView?.(t,'match',db.game).catch(e=>toast(e.message));toast('Tournament match started');
 }
 function completeTournamentMatch(g,winner){
  const t=db.tournaments.find(x=>x.id===g.tournamentId);if(!t)return;
  const [r,i]=g.tournamentMatchId.split(':').map(Number),m=t.rounds[r]?.[i];if(!m||m.winner)return;
- const winning=tourMatchEntrants(m).find(c=>c&&c.id===winner.members?.[0])||tourMatchEntrants(m).find(c=>c?.label===winner.label);
+ const winning=tourMatchEntrants(m).find(c=>c&&(c.id===winner.teamId||c.id===winner.members?.[0]))||tourMatchEntrants(m).find(c=>c?.label===winner.label);
  if(!winning){toast('Could not identify the match winner');return}m.winner=winning;m.status='complete';m.score=g.participants.map(p=>`${p.label}: ${p.sets}`).join(' · ');advanceWinner(t,r,i,winning);g.tournamentBracket=t.rounds;
  if(t.champion){g.championName=winning.label;g.tournamentName=t.name;/* Champion is shown in the match results and bracket */}
  save();tourScreen='match';window.DARTHS_SYNC?.setTournamentView?.(t,'match',g).catch(console.warn);
@@ -880,5 +911,5 @@ function shareTournament(id){
 }
 renderRoster();
 
-</script><script src="./layout-editor.js?v=20261024-full"></script><script src="./settings.js?v=20261025-audio-sounds-layout-4"></script><link rel="stylesheet" href="./darths-audio.css?v=20261025-audio-sounds-layout-4"><script src="./darths-audio.js?v=20261025-audio-sounds-layout-4"></script><script type="module" src="./live-sync.js?v=20261030-turn-display-1"></script>
+</script><script src="./layout-editor.js?v=20261024-full"></script><script src="./settings.js?v=20261025-audio-sounds-layout-4"></script><link rel="stylesheet" href="./darths-audio.css?v=20261025-audio-sounds-layout-4"><script src="./darths-audio.js?v=20261025-audio-sounds-layout-4"></script><script type="module" src="./live-sync.js?v=20261025-responsive-stats-1"></script>
 </body></html>

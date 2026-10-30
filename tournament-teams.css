@@ -1,0 +1,14 @@
+
+#tourTeamControls{padding:11px;border:1px solid #28577c;background:#0e2945;border-radius:12px;margin:10px 0}
+#tourTeamControls.hidden{display:none!important}
+#tourTeamControls>label{display:grid;gap:6px;font-weight:700;font-size:12px}
+#tourTeamControls>label select{width:100%;padding:9px;background:#091c31;color:#fff;border:1px solid #315779;border-radius:8px}
+#tourTeamAssignments{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.tour-team-assignment-row{display:flex;flex-direction:column;gap:4px;min-width:0;padding:8px;border-radius:8px;background:#183753;font-size:12px}
+.tour-team-assignment-row select{width:100%;min-width:0;background:#091b30;border:1px solid #315779;color:#fff;border-radius:6px;padding:7px}
+.tour-team-order{background:#122e4b;border:1px solid #2b577d;border-radius:10px;padding:10px;margin:8px 0}
+.tour-team-order>b{display:block;margin-bottom:7px}
+.tour-team-order-row{display:flex;align-items:center;gap:6px;margin-top:5px}
+.tour-team-order-row span{flex:1;min-width:0}
+.tour-team-order-row button{width:38px;min-height:34px}
+@media(max-width:430px){#tourTeamAssignments{grid-template-columns:1fr}.tour-team-assignment-row{flex-direction:row;align-items:center;justify-content:space-between}.tour-team-assignment-row select{width:110px}}
